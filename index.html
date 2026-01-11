@@ -3,186 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFocus - By PolDigitale</title>
+    <title>MyFocus Pro - V11 Responsive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --main-color: #6366f1; }
         .bg-custom { background-color: var(--main-color); }
         .text-custom { color: var(--main-color); }
-        .border-custom { border-color: var(--main-color); }
-        .sand { fill: var(--main-color); transition: transform 1s linear; }
-        .task-done { border-left-color: #22c55e !important; background-color: #f0fdf4; text-decoration: line-through; color: #166534; }
-        .task-pending { border-left-color: #ef4444 !important; background-color: #fef2f2; color: #991b1b; }
-        .mic-active { animation: pulse-red 1.5s infinite; background-color: #fee2e2 !important; }
-        @keyframes pulse-red {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        
+        /* Mode Sombre */
+        body.dark-theme { background-color: #0f172a; color: #f8fafc; }
+        .dark-theme .bg-white { background-color: #1e293b; border-color: #334155; color: #f8fafc; }
+        .dark-theme input, .dark-theme select { background-color: #334155; color: white; border-color: #475569; }
+        .dark-theme #nextTaskInfo { color: #cbd5e1; }
+
+        /* Icones Priorité */
+        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .dot-red { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .dot-yellow { background-color: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
+        .dot-green { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
+
+        /* Animation Sablier */
+        .sand-top { transition: clip-path 1s linear; clip-path: inset(0 0 0 0); }
+        .sand-bottom { transition: clip-path 1s linear; clip-path: inset(100% 0 0 0); }
+        
+        .alarm-blink { animation: alert-bg 1s infinite; }
+        @keyframes alert-bg { 50% { background-color: #fee2e2; border-color: #ef4444; } }
+
+        .mic-active { animation: pulse-mic 1s infinite; fill: #ef4444 !important; }
+        @keyframes pulse-mic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+        /* Responsivité ajustements */
+        @media (max-width: 640px) {
+            .stat-card { padding: 0.75rem; }
+            .stat-val { font-size: 1.25rem; }
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-slate-900">
+<body class="bg-slate-50 min-h-screen font-sans text-slate-900 transition-colors duration-500">
 
-    <nav class="bg-white border-b border-slate-100 p-4 sticky top-0 z-50">
+    <div id="authOverlay" class="fixed inset-0 bg-slate-900/95 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-6 sm:p-8 rounded-[40px] max-w-sm w-full text-center shadow-2xl">
+            <h2 class="text-2xl font-black mb-6">Activation MyFocus</h2>
+            <input type="tel" id="phoneInput" placeholder="Numéro de téléphone" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 mb-6 outline-none focus:border-custom font-bold text-center">
+            <button onclick="startApp()" class="w-full bg-custom text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl">Démarrer</button>
+        </div>
+    </div>
+
+    <nav class="bg-white border-b p-4 sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-custom rounded-xl flex items-center justify-center text-white font-black text-2xl">M</div>
-                <div>
-                    <h1 class="text-xl font-black tracking-tight">MyFocus</h1>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">From PolDigitale</p>
-                </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-custom rounded-lg flex items-center justify-center text-white font-black italic shadow-sm">M</div>
+                <h1 class="font-black italic text-sm sm:text-base">MyFocus <span class="text-custom">PRO</span></h1>
             </div>
-            <div class="flex items-center gap-4">
-                <input type="text" id="userName" placeholder="Ton prénom..." class="border-b-2 border-slate-100 focus:border-custom outline-none text-sm font-bold text-right px-2 py-1 transition-all">
-                <input type="color" id="colorPicker" value="#6366f1" class="w-8 h-8 cursor-pointer rounded bg-transparent border-none">
+            <div class="flex items-center gap-3">
+                <span id="themeBadge" class="hidden sm:inline text-[9px] font-bold px-2 py-1 bg-slate-100 rounded-full dark:text-slate-800">MODE JOUR</span>
+                <div id="userInfos" class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase"></div>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto p-6 space-y-6">
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Objectif (h)</h3>
-                <input type="number" id="targetHours" value="8" step="0.5" class="text-4xl font-black text-custom w-full text-center outline-none">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-white p-4 rounded-[25px] shadow-sm border border-slate-100 text-center stat-card">
+                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Focus Total</p>
+                <p id="statTime" class="text-lg sm:text-2xl font-black text-custom stat-val">0.0h</p>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 md:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-4 items-center">
-                <div class="text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">Réalisé</p><p id="todayDone" class="text-2xl font-black">0.0h</p></div>
-                <div class="text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">Complétées</p><p id="tasksCompletedCount" class="text-2xl font-black text-green-600">0</p></div>
-                <div class="text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">En attente</p><p id="tasksPendingCount" class="text-2xl font-black text-red-500">0</p></div>
-                <div class="text-center">
-                    <button onclick="generateReport()" class="bg-slate-900 text-white text-[10px] font-bold px-4 py-2 rounded-full hover:bg-custom transition uppercase tracking-widest">Rapport Final</button>
-                </div>
+            <div class="bg-white p-4 rounded-[25px] shadow-sm border border-slate-100 text-center stat-card">
+                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Terminées</p>
+                <p id="statDone" class="text-lg sm:text-2xl font-black text-emerald-500 stat-val">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-[25px] shadow-sm border border-slate-100 text-center stat-card">
+                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">En cours</p>
+                <p id="statPending" class="text-lg sm:text-2xl font-black text-amber-500 stat-val">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-[25px] shadow-sm border border-slate-100 text-center stat-card">
+                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">En retard</p>
+                <p id="statLate" class="text-lg sm:text-2xl font-black text-red-500 stat-val">0</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-custom flex flex-col items-center">
-                <svg class="w-20 h-28" viewBox="0 0 100 150">
-                    <path d="M10,10 L90,10 L90,20 L55,75 L90,130 L90,140 L10,140 L10,130 L45,75 L10,20 Z" fill="none" stroke="#e2e8f0" stroke-width="5"/>
-                    <path id="sand-top" d="M15,20 L85,20 L50,75 Z" class="sand"/>
-                    <path id="sand-bottom" d="M50,75 L85,130 L15,130 Z" class="sand" style="transform-origin: 50% 100%; transform: scaleY(0);"/>
-                </svg>
-                <div id="timer" class="text-6xl font-mono font-black text-slate-800 my-4">25:00</div>
-                <div class="flex gap-2 w-full max-w-xs">
-                    <button onclick="toggleTimer()" id="btnStart" class="flex-1 bg-custom text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition">Focus</button>
-                    <button onclick="resetTimer()" class="bg-slate-100 text-slate-400 px-6 py-4 rounded-2xl font-bold hover:bg-slate-200 transition">↺</button>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="bg-white p-6 sm:p-8 rounded-[40px] shadow-xl border border-slate-50 flex flex-col items-center">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Focus Timer</h3>
+                <div class="relative w-20 h-28 sm:w-24 sm:h-32 mb-4">
+                    <svg viewBox="0 0 100 150" class="w-full h-full">
+                        <path d="M20,10 L80,10 L80,20 L55,75 L80,130 L80,140 L20,140 L20,130 L45,75 L20,20 Z" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+                        <path id="sand-top" d="M25,20 L75,20 L50,75 Z" fill="#6366f1" class="sand-top"/>
+                        <path id="sand-bottom" d="M50,75 L75,130 L25,130 Z" fill="#6366f1" class="sand-bottom"/>
+                    </svg>
                 </div>
+                <div id="timerDisplay" class="text-4xl sm:text-5xl font-mono font-black mb-6">25:00</div>
+                <button onclick="toggleTimer()" id="btnTimer" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-custom transition">Démarrer Focus</button>
             </div>
 
-            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                <div class="flex gap-2 mb-6">
-                    <input type="text" id="taskInput" placeholder="Nouvelle tâche..." class="flex-1 bg-slate-50 border-none px-4 py-3 rounded-2xl focus:outline-none font-bold">
-                    <button onclick="startVoice()" id="voiceBtn" class="p-3 text-slate-400 border border-slate-100 rounded-2xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg></button>
-                    <button onclick="addTask()" class="bg-custom text-white px-6 rounded-2xl font-black">+</button>
+            <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-[40px] shadow-sm border border-slate-100 space-y-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nouvelle Mission</h3>
+                    <button id="vocBtn" onclick="startVoice()" class="p-2 rounded-full hover:bg-slate-50 transition-all">
+                        <svg class="w-10 h-10 fill-slate-400" id="micSvg" viewBox="0 0 24 24">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                    </button>
                 </div>
-                <div id="taskList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2"></div>
+                <input type="text" id="taskInput" placeholder="Dicter ici..." class="w-full text-xl sm:text-2xl font-bold bg-transparent outline-none border-b-2 border-slate-100 focus:border-custom pb-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <select id="taskPrio" class="bg-slate-50 p-4 rounded-2xl font-bold outline-none">
+                        <option value="1">🔴 Urgent</option>
+                        <option value="2">🟡 Moyen</option>
+                        <option value="3">🟢 Bas</option>
+                    </select>
+                    <div class="flex items-center bg-slate-50 p-4 rounded-2xl">
+                        <input type="number" id="taskDur" value="30" min="30" class="bg-transparent w-full font-black text-custom outline-none text-center">
+                        <span class="text-[9px] font-black text-slate-400 uppercase">Min</span>
+                    </div>
+                </div>
+                <button onclick="addTask()" class="w-full bg-custom text-white py-4 sm:py-5 rounded-[25px] font-black uppercase tracking-widest shadow-xl">Ajouter au planning</button>
             </div>
         </div>
+
+        <div id="alarmBox" class="bg-white p-4 sm:p-6 rounded-[30px] border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm transition-all">
+            <div class="flex items-center gap-4 w-full sm:w-auto">
+                <div class="bg-slate-50 p-3 rounded-2xl" id="alarmIconBox">
+                    <svg id="alarmSvg" class="w-6 h-6 sm:w-8 sm:h-8 fill-slate-400" viewBox="0 0 24 24">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p id="nextTaskInfo" class="font-black text-xs sm:text-sm italic">Prêt pour la journée</p>
+                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Alerte T-5 Min</p>
+                </div>
+            </div>
+            <button onclick="generateReport()" class="w-full sm:w-auto bg-slate-900 text-white text-[9px] font-black px-6 py-3 rounded-2xl uppercase tracking-widest">Imprimer Rapport</button>
+        </div>
+
+        <div id="taskList" class="space-y-3 pb-10"></div>
     </main>
 
-    <div id="reportModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[100]">
-        <div class="bg-white p-8 rounded-3xl max-w-lg w-full shadow-2xl">
-            <h2 class="text-2xl font-black mb-4">Résumé PolDigitale du Jour</h2>
-            <div id="reportContent" class="text-sm space-y-2 mb-6 text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100 font-mono"></div>
-            <button onclick="closeReport()" class="w-full bg-custom text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-indigo-200">Continuer</button>
-        </div>
-    </div>
+    <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
 
     <script>
-        let stats = JSON.parse(localStorage.getItem('myFocus_v4')) || { todayHours: 0, tasks: [] };
-        let timeLeft = 1500, initialTime = 1500, timerId = null;
+        let db = JSON.parse(localStorage.getItem('myFocus_v11')) || { phone: null, tasks: [], timeTotal: 0 };
+        let timerId = null;
+        let timeLeft = 1500;
 
-        function updateTimerDisplay() {
-            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0'), s = (timeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('timer').textContent = `${m}:${s}`;
-            const ratio = timeLeft / initialTime;
-            document.getElementById('sand-top').style.transform = `scaleY(${ratio})`;
-            document.getElementById('sand-bottom').style.transform = `scaleY(${1 - ratio})`;
+        function checkTheme() {
+            const isDark = new Date().getHours() >= 20 || new Date().getHours() < 7;
+            document.body.classList.toggle('dark-theme', isDark);
+            document.getElementById('themeBadge').textContent = isDark ? "MODE NUIT" : "MODE JOUR";
         }
 
+        function startApp() {
+            const p = document.getElementById('phoneInput').value;
+            if(p.length < 8) return alert("Numéro invalide");
+            db.phone = p; save(); init();
+        }
+
+        function init() {
+            if(!db.phone) return;
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('userInfos').textContent = "ID: " + db.phone;
+            checkTheme(); render();
+            if(Notification.permission !== 'granted') Notification.requestPermission();
+        }
+
+        // VOCAL
+        function startVoice() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!Speech) return alert("Utilisez Chrome ou Edge pour le vocal");
+            const rec = new Speech();
+            rec.lang = 'fr-FR';
+            rec.onstart = () => document.getElementById('micSvg').classList.add('mic-active');
+            rec.onend = () => document.getElementById('micSvg').classList.remove('mic-active');
+            rec.onresult = (e) => document.getElementById('taskInput').value = e.results[0][0].transcript;
+            rec.start();
+        }
+
+        function addTask() {
+            const text = document.getElementById('taskInput').value;
+            const prio = parseInt(document.getElementById('taskPrio').value);
+            const dur = parseInt(document.getElementById('taskDur').value);
+            if(!text || dur < 30) return alert("Nom requis et 30min min.");
+            db.tasks.push({ id: Date.now(), text, prio, dur, done: false, start: calculateStart() });
+            db.tasks.sort((a, b) => a.prio - b.prio);
+            save();
+            document.getElementById('taskInput').value = '';
+        }
+
+        function calculateStart() {
+            let t = Date.now();
+            db.tasks.forEach(x => { if(!x.done) t += x.dur * 60000; });
+            return t;
+        }
+
+        // POMODORO
         function toggleTimer() {
-            const btn = document.getElementById('btnStart');
-            if (timerId) { clearInterval(timerId); timerId = null; btn.textContent = "Reprendre"; }
+            if(timerId) { clearInterval(timerId); timerId = null; document.getElementById('btnTimer').textContent = "Reprendre"; }
             else {
-                btn.textContent = "Pause";
+                document.getElementById('btnTimer').textContent = "Pause";
                 timerId = setInterval(() => {
-                    timeLeft--; updateTimerDisplay();
-                    if (timeLeft <= 0) { finishSession(); }
+                    timeLeft--; updateTimerUI();
+                    if(timeLeft <= 0) { 
+                        clearInterval(timerId); db.timeTotal += 25; 
+                        document.getElementById('beep').play();
+                        save(); resetTimer(); alert("Bravo ! Session de 25min terminée."); 
+                    }
                 }, 1000);
             }
         }
 
-        function finishSession() {
-            clearInterval(timerId); timerId = null;
-            stats.todayHours += (initialTime / 3600);
-            saveAndRefresh(); resetTimer(); alert("Session Focus réussie !");
+        function updateTimerUI() {
+            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+            document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+            const ratio = (timeLeft / 1500) * 100;
+            document.getElementById('sand-top').style.clipPath = `inset(${100 - ratio}% 0 0 0)`;
+            document.getElementById('sand-bottom').style.clipPath = `inset(0 0 ${ratio}% 0)`;
         }
 
-        function resetTimer() { clearInterval(timerId); timerId = null; timeLeft = 1500; updateTimerDisplay(); document.getElementById('btnStart').textContent = "Focus"; }
+        function resetTimer() { clearInterval(timerId); timerId = null; timeLeft = 1500; updateTimerUI(); document.getElementById('btnTimer').textContent = "Démarrer"; }
 
-        function addTask(text = null) {
-            const val = text || document.getElementById('taskInput').value;
-            if (!val.trim()) return;
-            stats.tasks.push({ id: Date.now(), text: val, done: false });
-            saveAndRefresh(); document.getElementById('taskInput').value = '';
+        // RAPPORT IMPRIMABLE
+        function generateReport() {
+            const win = window.open('', '_blank');
+            const finies = db.tasks.filter(t => t.done);
+            win.document.write(`
+                <html><head><title>Rapport Focus</title>
+                <style>body{font-family:sans-serif;padding:30px;} .done{color:green;} .late{color:red;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ddd;padding:12px;text-align:left;}</style>
+                </head><body>
+                <h1>Rapport d'Activité : ${db.phone}</h1>
+                <p>Temps total de focus : <strong>${(db.timeTotal/60).toFixed(1)}h</strong></p>
+                <table><tr><th>Tâche</th><th>Durée</th><th>État</th></tr>
+                ${db.tasks.map(t => `<tr><td>${t.text}</td><td>${t.dur}min</td><td class="${t.done?'done':'late'}">${t.done?'TERMINÉE':'REPORTÉE'}</td></tr>`).join('')}
+                </table>
+                <script>window.onload=function(){window.print();window.close();}<\/script></body></html>
+            `);
+            win.document.close();
         }
 
-        function toggleTask(id) {
-            const task = stats.tasks.find(t => t.id === id);
-            if(task) task.done = !task.done;
-            saveAndRefresh();
-        }
-
-        function saveAndRefresh() {
-            localStorage.setItem('myFocus_v4', JSON.stringify(stats));
-            document.getElementById('todayDone').textContent = `${stats.todayHours.toFixed(2)}h`;
-            
+        function render() {
             const list = document.getElementById('taskList');
             list.innerHTML = '';
-            let completed = 0, pending = 0;
+            let dCount = 0, pCount = 0, lCount = 0;
 
-            stats.tasks.forEach(task => {
-                if(task.done) completed++; else pending++;
+            db.tasks.forEach(t => {
+                const late = !t.done && t.start < Date.now();
+                if(t.done) dCount++; else if(late) lCount++; else pCount++;
+                const dot = t.prio == 1 ? 'dot-red' : (t.prio == 2 ? 'dot-yellow' : 'dot-green');
                 const div = document.createElement('div');
-                div.className = `flex items-center justify-between p-4 rounded-2xl border-l-4 transition-all cursor-pointer ${task.done ? 'task-done' : 'task-pending'}`;
-                div.onclick = () => toggleTask(task.id);
-                div.innerHTML = `<span class="font-bold">${task.text}</span><span>${task.done ? '✓' : '⌛'}</span>`;
-                list.prepend(div);
+                div.className = `bg-white p-4 sm:p-6 rounded-[25px] border-l-[6px] shadow-sm flex items-center justify-between ${t.done ? 'opacity-30' : ''} ${t.prio==1?'border-red-500':t.prio==2?'border-amber-400':'border-emerald-400'}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <span class="dot ${dot}"></span>
+                        <div>
+                            <p class="font-black text-xs sm:text-base">${t.text}</p>
+                            <p class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-tighter">${t.dur} MIN • DÉBUT : ${new Date(t.start).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
+                        </div>
+                    </div>
+                    <button onclick="toggle(${t.id})" class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-slate-50 flex items-center justify-center font-bold text-slate-300 text-lg sm:text-xl">${t.done ? '✓' : '○'}</button>
+                `;
+                list.appendChild(div);
             });
-
-            document.getElementById('tasksCompletedCount').textContent = completed;
-            document.getElementById('tasksPendingCount').textContent = pending;
+            document.getElementById('statTime').textContent = (db.timeTotal / 60).toFixed(1) + "h";
+            document.getElementById('statDone').textContent = dCount;
+            document.getElementById('statPending').textContent = pCount;
+            document.getElementById('statLate').textContent = lCount;
+            updateAlarms();
         }
 
-        function generateReport() {
-            const name = document.getElementById('userName').value || "Utilisateur";
-            const target = document.getElementById('targetHours').value;
-            const completed = stats.tasks.filter(t => t.done).map(t => "✅ " + t.text);
-            const pending = stats.tasks.filter(t => !t.done).map(t => "❌ " + t.text);
-            
-            let html = `<strong>Rapport pour ${name}</strong><br>`;
-            html += `Objectif : ${target}h | Réalisé : ${stats.todayHours.toFixed(2)}h<br><br>`;
-            html += `<strong>Fait :</strong><br>${completed.join('<br>') || 'Aucune'}<br><br>`;
-            html += `<strong>En retard :</strong><br>${pending.join('<br>') || 'Aucune'}`;
-            
-            document.getElementById('reportContent').innerHTML = html;
-            document.getElementById('reportModal').classList.remove('hidden');
+        function updateAlarms() {
+            const next = db.tasks.find(t => !t.done);
+            if(!next) return;
+            const diff = (next.start - (5 * 60000)) - Date.now();
+            const box = document.getElementById('alarmBox');
+            if(diff < 0 && diff > -300000) {
+                box.classList.add('alarm-blink');
+                document.getElementById('nextTaskInfo').textContent = "URGENT : " + next.text;
+                if(Math.abs(diff) < 2000) { document.getElementById('beep').play(); new Notification("Focus !", {body: next.text}); }
+            } else {
+                box.classList.remove('alarm-blink');
+                document.getElementById('nextTaskInfo').textContent = "Prochain : " + next.text;
+            }
         }
 
-        function closeReport() { document.getElementById('reportModal').classList.add('hidden'); }
-
-        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if(Speech) {
-            const rec = new Speech(); rec.lang = 'fr-FR';
-            rec.onstart = () => document.getElementById('voiceBtn').classList.add('mic-active');
-            rec.onend = () => document.getElementById('voiceBtn').classList.remove('mic-active');
-            rec.onresult = (e) => addTask(e.results[0][0].transcript);
-            function startVoice() { rec.start(); }
-        }
-
-        document.getElementById('colorPicker').oninput = (e) => document.documentElement.style.setProperty('--main-color', e.target.value);
-        saveAndRefresh(); updateTimerDisplay();
+        function toggle(id) { const t = db.tasks.find(x => x.id === id); t.done = !t.done; save(); }
+        function save() { localStorage.setItem('myFocus_v11', JSON.stringify(db)); render(); }
+        
+        setInterval(updateAlarms, 1000);
+        setInterval(checkTheme, 60000);
+        init();
     </script>
 </body>
 </html>
