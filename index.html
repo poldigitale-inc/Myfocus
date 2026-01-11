@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyFocus - By PolDigitale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --main-color: #6366f1; }
+        .bg-custom { background-color: var(--main-color); }
+        .text-custom { color: var(--main-color); }
+        .border-custom { border-color: var(--main-color); }
+        .sand { fill: var(--main-color); transition: transform 1s linear; }
+        .task-done { border-left-color: #22c55e !important; background-color: #f0fdf4; text-decoration: line-through; color: #166534; }
+        .task-pending { border-left-color: #ef4444 !important; background-color: #fef2f2; color: #991b1b; }
+        .mic-active { animation: pulse-red 1.5s infinite; background-color: #fee2e2 !important; }
+        @keyframes pulse-red {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-900">
+
+    <nav class="bg-white border-b border-slate-100 p-4 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-custom rounded-xl flex items-center justify-center text-white font-black text-2xl">M</div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight">MyFocus</h1>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">From PolDigitale</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <input type="text" id="userName" placeholder="Ton prénom..." class="border-b-2 border-slate-100 focus:border-custom outline-none text-sm font-bold text-right px-2 py-1 transition-all">
+                <input type="color" id="colorPicker" value="#6366f1" class="w-8 h-8 cursor-pointer rounded bg-transparent border-none">
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-6 space-y-6">
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Objectif (h)</h3>
+                <input type="number" id="targetHours" value="8" step="0.5" class="text-4xl font-black text-custom w-full text-center outline-none">
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 md:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-4 items-center">
+                <div class="text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">Réalisé</p><p id="todayDone" class="text-2xl font-black">0.0h</p></div>
+                <div class="text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">Complétées</p><p id="tasksCompletedCount" class="text-2xl font-black text-green-600">0</p></div>
+                <div class="text-center"><p class="text-[10px] font-bold text-slate-400 uppercase">En attente</p><p id="tasksPendingCount" class="text-2xl font-black text-red-500">0</p></div>
+                <div class="text-center">
+                    <button onclick="generateReport()" class="bg-slate-900 text-white text-[10px] font-bold px-4 py-2 rounded-full hover:bg-custom transition uppercase tracking-widest">Rapport Final</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-custom flex flex-col items-center">
+                <svg class="w-20 h-28" viewBox="0 0 100 150">
+                    <path d="M10,10 L90,10 L90,20 L55,75 L90,130 L90,140 L10,140 L10,130 L45,75 L10,20 Z" fill="none" stroke="#e2e8f0" stroke-width="5"/>
+                    <path id="sand-top" d="M15,20 L85,20 L50,75 Z" class="sand"/>
+                    <path id="sand-bottom" d="M50,75 L85,130 L15,130 Z" class="sand" style="transform-origin: 50% 100%; transform: scaleY(0);"/>
+                </svg>
+                <div id="timer" class="text-6xl font-mono font-black text-slate-800 my-4">25:00</div>
+                <div class="flex gap-2 w-full max-w-xs">
+                    <button onclick="toggleTimer()" id="btnStart" class="flex-1 bg-custom text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition">Focus</button>
+                    <button onclick="resetTimer()" class="bg-slate-100 text-slate-400 px-6 py-4 rounded-2xl font-bold hover:bg-slate-200 transition">↺</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                <div class="flex gap-2 mb-6">
+                    <input type="text" id="taskInput" placeholder="Nouvelle tâche..." class="flex-1 bg-slate-50 border-none px-4 py-3 rounded-2xl focus:outline-none font-bold">
+                    <button onclick="startVoice()" id="voiceBtn" class="p-3 text-slate-400 border border-slate-100 rounded-2xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg></button>
+                    <button onclick="addTask()" class="bg-custom text-white px-6 rounded-2xl font-black">+</button>
+                </div>
+                <div id="taskList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="reportModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[100]">
+        <div class="bg-white p-8 rounded-3xl max-w-lg w-full shadow-2xl">
+            <h2 class="text-2xl font-black mb-4">Résumé PolDigitale du Jour</h2>
+            <div id="reportContent" class="text-sm space-y-2 mb-6 text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100 font-mono"></div>
+            <button onclick="closeReport()" class="w-full bg-custom text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-indigo-200">Continuer</button>
+        </div>
+    </div>
+
+    <script>
+        let stats = JSON.parse(localStorage.getItem('myFocus_v4')) || { todayHours: 0, tasks: [] };
+        let timeLeft = 1500, initialTime = 1500, timerId = null;
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0'), s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${m}:${s}`;
+            const ratio = timeLeft / initialTime;
+            document.getElementById('sand-top').style.transform = `scaleY(${ratio})`;
+            document.getElementById('sand-bottom').style.transform = `scaleY(${1 - ratio})`;
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('btnStart');
+            if (timerId) { clearInterval(timerId); timerId = null; btn.textContent = "Reprendre"; }
+            else {
+                btn.textContent = "Pause";
+                timerId = setInterval(() => {
+                    timeLeft--; updateTimerDisplay();
+                    if (timeLeft <= 0) { finishSession(); }
+                }, 1000);
+            }
+        }
+
+        function finishSession() {
+            clearInterval(timerId); timerId = null;
+            stats.todayHours += (initialTime / 3600);
+            saveAndRefresh(); resetTimer(); alert("Session Focus réussie !");
+        }
+
+        function resetTimer() { clearInterval(timerId); timerId = null; timeLeft = 1500; updateTimerDisplay(); document.getElementById('btnStart').textContent = "Focus"; }
+
+        function addTask(text = null) {
+            const val = text || document.getElementById('taskInput').value;
+            if (!val.trim()) return;
+            stats.tasks.push({ id: Date.now(), text: val, done: false });
+            saveAndRefresh(); document.getElementById('taskInput').value = '';
+        }
+
+        function toggleTask(id) {
+            const task = stats.tasks.find(t => t.id === id);
+            if(task) task.done = !task.done;
+            saveAndRefresh();
+        }
+
+        function saveAndRefresh() {
+            localStorage.setItem('myFocus_v4', JSON.stringify(stats));
+            document.getElementById('todayDone').textContent = `${stats.todayHours.toFixed(2)}h`;
+            
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            let completed = 0, pending = 0;
+
+            stats.tasks.forEach(task => {
+                if(task.done) completed++; else pending++;
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-4 rounded-2xl border-l-4 transition-all cursor-pointer ${task.done ? 'task-done' : 'task-pending'}`;
+                div.onclick = () => toggleTask(task.id);
+                div.innerHTML = `<span class="font-bold">${task.text}</span><span>${task.done ? '✓' : '⌛'}</span>`;
+                list.prepend(div);
+            });
+
+            document.getElementById('tasksCompletedCount').textContent = completed;
+            document.getElementById('tasksPendingCount').textContent = pending;
+        }
+
+        function generateReport() {
+            const name = document.getElementById('userName').value || "Utilisateur";
+            const target = document.getElementById('targetHours').value;
+            const completed = stats.tasks.filter(t => t.done).map(t => "✅ " + t.text);
+            const pending = stats.tasks.filter(t => !t.done).map(t => "❌ " + t.text);
+            
+            let html = `<strong>Rapport pour ${name}</strong><br>`;
+            html += `Objectif : ${target}h | Réalisé : ${stats.todayHours.toFixed(2)}h<br><br>`;
+            html += `<strong>Fait :</strong><br>${completed.join('<br>') || 'Aucune'}<br><br>`;
+            html += `<strong>En retard :</strong><br>${pending.join('<br>') || 'Aucune'}`;
+            
+            document.getElementById('reportContent').innerHTML = html;
+            document.getElementById('reportModal').classList.remove('hidden');
+        }
+
+        function closeReport() { document.getElementById('reportModal').classList.add('hidden'); }
+
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if(Speech) {
+            const rec = new Speech(); rec.lang = 'fr-FR';
+            rec.onstart = () => document.getElementById('voiceBtn').classList.add('mic-active');
+            rec.onend = () => document.getElementById('voiceBtn').classList.remove('mic-active');
+            rec.onresult = (e) => addTask(e.results[0][0].transcript);
+            function startVoice() { rec.start(); }
+        }
+
+        document.getElementById('colorPicker').oninput = (e) => document.documentElement.style.setProperty('--main-color', e.target.value);
+        saveAndRefresh(); updateTimerDisplay();
+    </script>
+</body>
+</html>
