@@ -3,36 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFocus - Ultimate</title>
+    <title>MyFocus - PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00f2fe">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --main-color: #00f2fe; --bg-dark: #010b1a; }
         .bg-custom { background-color: var(--main-color); }
         .text-custom { color: var(--main-color); }
-        
         body { background-color: #f4f7f9; transition: all 0.5s ease; }
         body.dark-theme { background-color: var(--bg-dark); color: #e2e8f0; }
-
-        /* Style des cartes */
-        .glass-card { 
-            background: white; 
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            border-radius: 35px;
-        }
+        .glass-card { background: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         .dark-theme .glass-card { background: #0a1628; border-color: #1e293b; }
-
-        /* Nouveau Sablier SVG */
-        .hourglass-container { position: relative; width: 100px; height: 120px; }
-        .sand-fill { fill: #00f2fe; transition: height 1s linear; }
-
-        /* Animations */
+        .sand-fill { fill: #00f2fe; transition: transform 1s linear; }
         .mic-active { animation: pulse-red 1s infinite; fill: #ff4b2b !important; }
         @keyframes pulse-red { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); filter: drop-shadow(0 0 10px red); } }
-        
         .alarm-blink { animation: alert-flash 1s infinite; }
         @keyframes alert-flash { 50% { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; } }
-
         .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .dot-red { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
         .dot-yellow { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
@@ -43,161 +30,101 @@
 
     <div id="authOverlay" class="fixed inset-0 bg-slate-900/98 z-[100] flex items-center justify-center p-4">
         <div class="glass-card p-8 max-w-sm w-full text-center">
-            <h2 class="text-2xl font-black mb-6">Initialisation V12</h2>
+            <h2 class="text-2xl font-black mb-6">Initialisation V12.1</h2>
             <input type="tel" id="phoneInput" placeholder="Numéro de mobile" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 mb-6 outline-none focus:border-cyan-400 font-bold text-center">
-            <button onclick="startApp()" class="w-full bg-cyan-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-cyan-400 transition">Entrer</button>
+            <button onclick="startApp()" class="w-full bg-cyan-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Entrer</button>
         </div>
     </div>
 
     <nav class="p-4 sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b dark:bg-slate-900/80">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <img src="https://cdn-icons-png.flaticon.com/512/3602/3602145.png" class="w-8 h-8" alt="logo">
+                <img src="https://cdn-icons-png.flaticon.com/512/3602/3602145.png" class="w-8 h-8">
                 <h1 class="font-black italic text-lg tracking-tighter">MYFOCUS <span class="text-cyan-500">ULTIMATE</span></h1>
             </div>
-            <div id="userInfos" class="text-[10px] font-black text-slate-400 tracking-widest"></div>
+            <div id="userInfos" class="text-[10px] font-black text-slate-400"></div>
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
-
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="glass-card p-5 text-center">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Focus Cumulé</p>
-                <p id="statTime" class="text-2xl font-black text-cyan-500">0.0h</p>
-            </div>
-            <div class="glass-card p-5 text-center">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Objectifs OK</p>
-                <p id="statDone" class="text-2xl font-black text-emerald-500">0</p>
-            </div>
-            <div class="glass-card p-5 text-center">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">À Venir</p>
-                <p id="statPending" class="text-2xl font-black text-amber-500">0</p>
-            </div>
-            <div class="glass-card p-5 text-center">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Retards</p>
-                <p id="statLate" class="text-2xl font-black text-red-500">0</p>
-            </div>
+            <div class="glass-card p-5 text-center"><p class="text-[9px] font-black text-slate-400 uppercase">Focus Cumulé</p><p id="statTime" class="text-2xl font-black text-cyan-500">0.0h</p></div>
+            <div class="glass-card p-5 text-center"><p class="text-[9px] font-black text-slate-400 uppercase">Objectifs OK</p><p id="statDone" class="text-2xl font-black text-emerald-500">0</p></div>
+            <div class="glass-card p-5 text-center"><p class="text-[9px] font-black text-slate-400 uppercase">À Venir</p><p id="statPending" class="text-2xl font-black text-amber-500">0</p></div>
+            <div class="glass-card p-5 text-center"><p class="text-[9px] font-black text-slate-400 uppercase">Retards</p><p id="statLate" class="text-2xl font-black text-red-500">0</p></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <div class="glass-card p-8 flex flex-col items-center justify-center min-h-[400px]">
+            <div class="glass-card p-8 flex flex-col items-center min-h-[400px]">
                 <h3 class="text-[10px] font-black text-slate-400 uppercase mb-8 tracking-[0.2em]">Focus Timer</h3>
-                
-                <div class="hourglass-container mb-8">
+                <div class="w-24 h-32 mb-8 relative">
                     <svg viewBox="0 0 100 150" class="w-full h-full drop-shadow-2xl">
-                        <path d="M10,10 L90,10 L90,25 Q50,75 90,125 L90,140 L10,140 L10,125 Q50,75 10,25 Z" fill="none" stroke="#00f2fe" stroke-width="4" stroke-linejoin="round"/>
+                        <path d="M10,10 L90,10 L90,25 Q50,75 90,125 L90,140 L10,140 L10,125 Q50,75 10,25 Z" fill="none" stroke="#00f2fe" stroke-width="4"/>
                         <path id="sand-top" d="M15,22 Q50,65 85,22 Z" class="sand-fill"/>
-                        <path id="sand-bottom" d="M15,128 Q50,85 85,128 L85,135 L15,135 Z" class="sand-fill" style="height: 0;"/>
+                        <path id="sand-bottom" d="M15,128 Q50,85 85,128 L85,135 L15,135 Z" class="sand-fill" style="transform: scaleY(0); transform-origin: bottom;">
                     </svg>
                 </div>
-
                 <div id="timerDisplay" class="text-5xl font-mono font-black mb-8 tracking-tighter">25:00</div>
-                <button onclick="toggleTimer()" id="btnTimer" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl hover:scale-105 transition">Start Session</button>
+                <button onclick="toggleTimer()" id="btnTimer" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:scale-105 transition">Start Session</button>
             </div>
 
             <div class="lg:col-span-2 glass-card p-6 sm:p-8 space-y-6">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Planning Missions</h3>
-                    <button onclick="startVoice()" class="p-3 bg-slate-50 rounded-full hover:bg-cyan-50 transition-colors">
-                        <svg id="micSvg" class="w-8 h-8 fill-slate-400" viewBox="0 0 24 24">
-                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                        </svg>
-                    </button>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Missions</h3>
+                    <button onclick="startVoice()" class="p-3 bg-slate-50 rounded-full"><svg id="micSvg" class="w-8 h-8 fill-slate-400" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
                 </div>
-
-                <input type="text" id="taskInput" placeholder="En quoi puis-je vous aider ?" class="w-full text-2xl font-bold bg-transparent border-b-2 border-slate-100 focus:border-cyan-400 outline-none pb-4 transition-all">
-
+                <input type="text" id="taskInput" placeholder="En quoi puis-je vous aider ?" class="w-full text-2xl font-bold bg-transparent border-b-2 border-slate-100 focus:border-cyan-400 outline-none pb-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="text-[9px] font-bold text-slate-400 uppercase px-2">Niveau d'urgence</label>
-                        <select id="taskPrio" class="w-full bg-slate-50 p-4 rounded-2xl font-bold appearance-none outline-none">
-                            <option value="1">🔴 Priorité Alpha</option>
-                            <option value="2">🟡 Priorité Beta</option>
-                            <option value="3">🟢 Priorité Gamma</option>
-                        </select>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[9px] font-bold text-slate-400 uppercase px-2">Durée estimée</label>
-                        <div class="flex items-center bg-slate-50 p-4 rounded-2xl">
-                            <input type="number" id="taskDur" value="30" min="30" class="bg-transparent w-full font-black text-cyan-600 outline-none text-center">
-                            <span class="text-[9px] font-black text-slate-400 uppercase">Min</span>
-                        </div>
-                    </div>
+                    <select id="taskPrio" class="bg-slate-50 p-4 rounded-2xl font-bold"><option value="1">🔴 Priorité Alpha</option><option value="2">🟡 Priorité Beta</option><option value="3">🟢 Priorité Gamma</option></select>
+                    <div class="flex items-center bg-slate-50 p-4 rounded-2xl"><input type="number" id="taskDur" value="30" class="bg-transparent w-full font-black text-cyan-600 text-center"><span class="text-[9px] font-black text-slate-400 uppercase">Min</span></div>
                 </div>
-
-                <button onclick="addTask()" class="w-full bg-cyan-500 text-white py-5 rounded-[25px] font-black uppercase tracking-widest shadow-xl shadow-cyan-100 hover:bg-cyan-400 transition">Programmer la mission</button>
+                <button onclick="addTask()" class="w-full bg-cyan-500 text-white py-5 rounded-[25px] font-black uppercase tracking-widest shadow-xl shadow-cyan-100 hover:bg-cyan-400 transition">Programmer</button>
             </div>
         </div>
 
         <div id="alarmBox" class="glass-card p-6 flex flex-col sm:flex-row items-center justify-between gap-6 transition-all">
             <div class="flex items-center gap-5 w-full sm:w-auto">
-                <div class="bg-slate-50 p-4 rounded-2xl">
-                    <svg id="alarmSvg" class="w-8 h-8 fill-slate-400" viewBox="0 0 24 24">
-                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p id="nextTaskInfo" class="font-black text-sm">Système en attente</p>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Notification Intelligente T-5</p>
-                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl"><svg id="alarmSvg" class="w-8 h-8 fill-slate-400" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
+                <div><p id="nextTaskInfo" class="font-black text-sm">Prêt</p><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Alerte T-5min</p></div>
             </div>
-            <button onclick="generateReport()" class="w-full sm:w-auto bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest">Générer Rapport PDF</button>
+            <button onclick="generateReport()" class="w-full sm:w-auto bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] tracking-widest">Rapport</button>
         </div>
 
         <div id="taskList" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20"></div>
-
     </main>
 
     <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
 
     <script>
+        // ENREGISTREMENT DU SERVICE WORKER (PWA)
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('sw.js').then(() => console.log("PWA Active"));
+        }
+
         let db = JSON.parse(localStorage.getItem('myFocus_v12')) || { phone: null, tasks: [], timeTotal: 0 };
         let timerId = null, timeLeft = 1500;
 
-        function checkTheme() {
-            const isNight = new Date().getHours() >= 20 || new Date().getHours() < 7;
-            document.body.classList.toggle('dark-theme', isNight);
-        }
-
-        function startApp() {
-            const p = document.getElementById('phoneInput').value;
-            if(p.length < 8) return alert("Identifiant requis");
-            db.phone = p; save(); init();
-        }
-
-        function init() {
-            if(!db.phone) return;
-            document.getElementById('authOverlay').style.display = 'none';
-            document.getElementById('userInfos').textContent = "ID-SESSION: " + db.phone;
-            checkTheme(); render();
-        }
-
-        // VOIX ROBUSTE
+        function checkTheme() { document.body.classList.toggle('dark-theme', new Date().getHours() >= 20 || new Date().getHours() < 7); }
+        function startApp() { const p = document.getElementById('phoneInput').value; if(p.length < 8) return; db.phone = p; save(); init(); }
+        function init() { if(!db.phone) return; document.getElementById('authOverlay').style.display = 'none'; document.getElementById('userInfos').textContent = "ID: " + db.phone; checkTheme(); render(); }
+        
         function startVoice() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Speech) return alert("Votre navigateur ne supporte pas le vocal (Utilisez Chrome)");
-            const rec = new Speech();
-            rec.lang = 'fr-FR';
+            if(!Speech) return alert("Utilisez Chrome pour le vocal");
+            const rec = new Speech(); rec.lang = 'fr-FR';
             rec.onstart = () => document.getElementById('micSvg').classList.add('mic-active');
             rec.onend = () => document.getElementById('micSvg').classList.remove('mic-active');
             rec.onresult = (e) => document.getElementById('taskInput').value = e.results[0][0].transcript;
             rec.start();
         }
 
-        // POMODORO LOGIC
         function toggleTimer() {
             if(timerId) { clearInterval(timerId); timerId = null; document.getElementById('btnTimer').textContent = "Reprendre"; }
             else {
                 document.getElementById('btnTimer').textContent = "Pause";
                 timerId = setInterval(() => {
                     timeLeft--; updateUI();
-                    if(timeLeft <= 0) { 
-                        clearInterval(timerId); db.timeTotal += 25; 
-                        document.getElementById('beep').play();
-                        save(); resetTimer(); alert("Focus terminé ! +25min"); 
-                    }
+                    if(timeLeft <= 0) { clearInterval(timerId); db.timeTotal += 25; document.getElementById('beep').play(); save(); resetTimer(); }
                 }, 1000);
             }
         }
@@ -209,81 +136,24 @@
             document.getElementById('sand-top').style.transform = `scaleY(${ratio})`;
             document.getElementById('sand-top').style.transformOrigin = "bottom";
             document.getElementById('sand-bottom').style.transform = `scaleY(${1-ratio})`;
-            document.getElementById('sand-bottom').style.transformOrigin = "bottom";
         }
 
-        function resetTimer() { clearInterval(timerId); timerId = null; timeLeft = 1500; updateUI(); document.getElementById('btnTimer').textContent = "Start Session"; }
-
-        function addTask() {
-            const text = document.getElementById('taskInput').value;
-            const prio = parseInt(document.getElementById('taskPrio').value);
-            const dur = parseInt(document.getElementById('taskDur').value);
-            if(!text) return;
-            db.tasks.push({ id: Date.now(), text, prio, dur, done: false, start: Date.now() + (db.tasks.length * 1800000) });
-            db.tasks.sort((a,b) => a.prio - b.prio);
-            save(); document.getElementById('taskInput').value = '';
-        }
-
+        function resetTimer() { clearInterval(timerId); timerId = null; timeLeft = 1500; updateUI(); document.getElementById('btnTimer').textContent = "Start"; }
+        function addTask() { const t = document.getElementById('taskInput').value; if(!t) return; db.tasks.push({id:Date.now(), text:t, prio:parseInt(document.getElementById('taskPrio').value), dur:parseInt(document.getElementById('taskDur').value), done:false, start:Date.now()}); save(); document.getElementById('taskInput').value=''; }
         function render() {
-            const list = document.getElementById('taskList');
-            list.innerHTML = '';
-            let d=0, p=0, l=0;
-
-            db.tasks.forEach(t => {
-                const isLate = !t.done && t.start < Date.now();
-                t.done ? d++ : (isLate ? l++ : p++);
-                const dot = t.prio==1 ? 'dot-red' : (t.prio==2 ? 'dot-yellow' : 'dot-green');
-                
-                const div = document.createElement('div');
-                div.className = `glass-card p-6 flex items-center justify-between border-l-8 ${t.prio==1?'border-red-500':t.prio==2?'border-amber-400':'border-emerald-400'} ${t.done?'opacity-40 grayscale':''}`;
-                div.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <span class="dot ${dot}"></span>
-                        <div>
-                            <p class="font-black text-sm">${t.text}</p>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase">${t.dur}min • Prévu: ${new Date(t.start).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
-                        </div>
-                    </div>
-                    <button onclick="toggleTask(${t.id})" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center font-bold text-cyan-500">${t.done ? '✓' : ''}</button>
-                `;
+            const list = document.getElementById('taskList'); list.innerHTML = ''; let d=0, p=0, l=0;
+            db.tasks.forEach(t => { 
+                t.done?d++:p++; const dot = t.prio==1?'dot-red':t.prio==2?'dot-yellow':'dot-green';
+                const div = document.createElement('div'); div.className = `glass-card p-6 flex items-center justify-between border-l-8 ${t.prio==1?'border-red-500':'border-emerald-400'} ${t.done?'opacity-40 grayscale':''}`;
+                div.innerHTML = `<div class="flex items-center gap-4"><span class="dot ${dot}"></span><div><p class="font-black text-sm">${t.text}</p></div></div><button onclick="toggleTask(${t.id})" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center font-bold text-cyan-500">${t.done?'✓':''}</button>`;
                 list.appendChild(div);
             });
             document.getElementById('statTime').textContent = (db.timeTotal/60).toFixed(1) + "h";
-            document.getElementById('statDone').textContent = d;
-            document.getElementById('statPending').textContent = p;
-            document.getElementById('statLate').textContent = l;
-            updateAlarms();
+            document.getElementById('statDone').textContent = d; document.getElementById('statPending').textContent = p;
         }
-
-        function updateAlarms() {
-            const next = db.tasks.find(t => !t.done);
-            if(!next) return;
-            const diff = next.start - Date.now();
-            const box = document.getElementById('alarmBox');
-            if(diff > 0 && diff < 300000) {
-                box.classList.add('alarm-blink');
-                document.getElementById('alarmSvg').style.fill = "#ef4444";
-                document.getElementById('nextTaskInfo').textContent = "T-5min : " + next.text;
-            } else {
-                box.classList.remove('alarm-blink');
-                document.getElementById('alarmSvg').style.fill = "#94a3b8";
-                document.getElementById('nextTaskInfo').textContent = "Suivant : " + next.text;
-            }
-        }
-
-        function toggleTask(id) { const t = db.tasks.find(x => x.id === id); t.done = !t.done; save(); }
+        function toggleTask(id) { const t = db.tasks.find(x=>x.id===id); t.done = !t.done; save(); }
         function save() { localStorage.setItem('myFocus_v12', JSON.stringify(db)); render(); }
-        
-        function generateReport() {
-            const win = window.open('', '_blank');
-            win.document.write(`<html><head><style>body{font-family:sans-serif;padding:40px} table{width:100%;border-collapse:collapse} th,td{border:1px solid #ddd;padding:12px;text-align:left} th{background:#00f2fe;color:white}</style></head>
-            <body><h1>Rapport MyFocus - ${db.phone}</h1><p>Focus Total: ${(db.timeTotal/60).toFixed(1)}h</p>
-            <table><tr><th>Mission</th><th>Durée</th><th>Status</th></tr>
-            ${db.tasks.map(t=>`<tr><td>${t.text}</td><td>${t.dur}min</td><td>${t.done?'Validé':'Non-fait'}</td></tr>`).join('')}
-            </table><script>window.print();window.close();<\/script></body></html>`);
-        }
-
-        setInterval(render, 30000);
+        function generateReport() { window.print(); }
         init();
     </script>
 </body>
