@@ -1,0 +1,15 @@
+{
+  "name": "MyFocus Pro Ultimate",
+  "short_name": "MyFocus",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#010b1a",
+  "theme_color": "#00f2fe",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3602/3602145.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
