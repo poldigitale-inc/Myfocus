@@ -3,188 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFocus Pro - Midnight Gold</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#D4AF37">
+    <title>MyFocus Platinum - Priorités</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* PALETTE DE COULEURS OR & NOIR */
-        :root { 
-            --gold-primary: #D4AF37; 
-            --gold-light: #F9E076;
-            --bg-dark: #05070a; 
-            --card-dark: #111418;
-        }
+        :root { --gold: #D4AF37; --bg: #05070a; --card: #111418; --urgent: #ff4d4d; --inter: #fbbf24; --faible: #2ecc71; }
+        body { background-color: var(--bg); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass-card { background: var(--card); border: 1.5px solid rgba(212, 175, 55, 0.15); border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        
+        .btn-ui { background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.15); border-radius: 16px; transition: 0.2s; }
+        .btn-ui:active { transform: scale(0.95); border-color: var(--gold); }
+        .btn-gold { background: var(--gold); color: black; border-color: rgba(255,255,255,0.3); font-weight: 900; }
+        
+        .progress-container { height: 4px; background: rgba(255,255,255,0.05); width: 100%; position: fixed; top: 0; left: 0; z-index: 100; }
+        #topProgressBar { height: 100%; width: 0%; background: var(--gold); box-shadow: 0 0 15px var(--gold); transition: width 0.5s ease; }
 
-        body { background-color: var(--bg-dark); color: #e2e8f0; transition: all 0.5s ease; }
+        .sand-fill { fill: var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
+        .hourglass-border { stroke: var(--gold); stroke-width: 3px; }
+        
+        .check-box { width: 26px; height: 26px; border: 2px solid var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .checked { background: var(--gold); }
+        
+        .tab-active { border-bottom: 3px solid var(--gold); color: var(--gold); }
+        input[type="time"], select { background: #1a1e23; color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 10px; font-weight: bold; outline: none; font-size: 12px; }
 
-        /* CARTES AVEC CONTOUR OR FIN */
-        .glass-card { 
-            background: var(--card-dark); 
-            border: 1.5px solid rgba(212, 175, 55, 0.2);
-            border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            transition: border-color 0.3s ease;
-        }
-        .glass-card:hover { border-color: var(--gold-primary); }
+        /* Badges de priorité */
+        .prio-1 { border-left: 4px solid var(--urgent); }
+        .prio-2 { border-left: 4px solid var(--inter); }
+        .prio-3 { border-left: 4px solid var(--faible); }
+        
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
 
-        /* SABLIER OR LUMINEUX */
-        .sand-fill { fill: var(--gold-primary); filter: drop-shadow(0 0 5px var(--gold-primary)); }
-        .hourglass-border { stroke: var(--gold-primary); stroke-width: 3px; }
-
-        /* ICONES AVEC CONTOURS */
-        #micSvg, #alarmSvg {
-            fill: #94a3b8;
-            stroke: rgba(0,0,0,0.5);
-            stroke-width: 0.5px;
-        }
-
-        .mic-active { 
-            animation: pulse-gold 1s infinite; 
-            fill: var(--gold-light) !important; 
-        }
-
-        @keyframes pulse-gold { 
-            0% { transform: scale(1); filter: drop-shadow(0 0 2px var(--gold-primary)); }
-            50% { transform: scale(1.1); filter: drop-shadow(0 0 15px var(--gold-primary)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 2px var(--gold-primary)); }
-        }
-
-        /* POINTS DE PRIORITÉ RÉVISÉS */
-        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1px solid rgba(255,255,255,0.2); }
-        .dot-red { background: #ff4d4d; box-shadow: 0 0 10px #ff4d4d; }
-        .dot-yellow { background: var(--gold-primary); box-shadow: 0 0 10px var(--gold-primary); }
-        .dot-green { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
-
-        .text-gold { color: var(--gold-primary); }
-        .bg-gold { background-color: var(--gold-primary); }
+        @keyframes pulse-gold { 0% { border-color: var(--gold); } 50% { border-color: #fff; box-shadow: 0 0 15px var(--gold); } 100% { border-color: var(--gold); } }
+        .task-alert { animation: pulse-gold 2s infinite; border-width: 2px; }
+        .mic-icon { width: 24px; height: 24px; fill: var(--gold); }
     </style>
 </head>
-<body class="min-h-screen font-sans">
+<body class="min-h-screen">
 
-    <div id="authOverlay" class="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4">
-        <div class="glass-card p-8 max-w-sm w-full text-center border-gold-primary">
-            <h2 class="text-2xl font-black mb-6 text-gold">MYFOCUS <span class="text-white">GOLD</span></h2>
-            <input type="tel" id="phoneInput" placeholder="N° de Mobile" class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl px-6 py-4 mb-6 outline-none focus:border-gold-primary font-bold text-center text-white">
-            <button onclick="startApp()" class="w-full bg-gold text-black py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-white transition">Démarrer</button>
+    <div class="progress-container"><div id="topProgressBar"></div></div>
+
+    <div id="reportModal" class="fixed inset-0 z-[110] hidden bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card p-8 max-w-sm w-full space-y-6 text-center">
+            <h2 class="text-xl font-black text-gold uppercase tracking-widest">Rapport d'Activité</h2>
+            <div id="reportStats" class="space-y-2 text-sm italic text-slate-400"></div>
+            <button onclick="sendReport()" class="btn-ui btn-gold w-full py-4 rounded-2xl uppercase text-xs text-black">Partager par SMS</button>
+            <button onclick="closeModal()" class="w-full text-slate-500 text-[10px] font-black uppercase">Fermer</button>
         </div>
     </div>
 
-    <nav class="p-4 sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-gold rounded-lg flex items-center justify-center text-black font-black">M</div>
-                <h1 class="font-black italic text-lg tracking-tighter text-white">MYFOCUS <span class="text-gold">PRO</span></h1>
+    <nav class="p-4 pt-6 sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gold rounded-xl flex items-center justify-center text-black font-black text-xl">M</div>
+                <h1 class="font-black italic text-xl tracking-tighter text-white">MyFocus</h1>
             </div>
-            <div id="userInfos" class="text-[10px] font-black text-slate-500 tracking-widest"></div>
+            <div class="flex gap-4">
+                <button onclick="setPeriod('day')" id="btn-day" class="text-[10px] font-black uppercase tab-active">Jour</button>
+                <button onclick="setPeriod('week')" id="btn-week" class="text-[10px] font-black uppercase">Semaine</button>
+                <button onclick="setPeriod('month')" id="btn-month" class="text-[10px] font-black uppercase">Mois</button>
+            </div>
+            <button onclick="openModal()" class="btn-ui px-4 py-2 text-[9px] font-black text-gold uppercase">Rapport</button>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-white">
-            <div class="glass-card p-5 text-center"><p class="text-[9px] font-black text-slate-500 uppercase">Focus</p><p id="statTime" class="text-2xl font-black text-gold">0.0h</p></div>
-            <div class="glass-card p-5 text-center"><p class="text-[9px] font-black text-slate-500 uppercase">Succès</p><p id="statDone" class="text-2xl font-black text-white">0</p></div>
-            <div class="glass-card p-5 text-center"><p class="text-[9px] font-black text-slate-500 uppercase">Attente</p><p id="statPending" class="text-2xl font-black text-slate-400">0</p></div>
-            <div class="glass-card p-5 text-center"><p class="text-[9px] font-black text-slate-500 uppercase">Alertes</p><p id="statLate" class="text-2xl font-black text-red-500">0</p></div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="glass-card p-8 flex flex-col items-center">
-                <h3 class="text-[10px] font-black text-slate-500 uppercase mb-8 tracking-widest">Focus Engine</h3>
-                <div class="w-24 h-32 mb-8 relative">
+    <main class="max-w-4xl mx-auto p-4 space-y-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass-card p-8 flex flex-col items-center justify-center">
+                <div class="w-20 h-24 mb-4">
                     <svg viewBox="0 0 100 150" class="w-full h-full">
                         <path d="M10,10 L90,10 L90,25 Q50,75 90,125 L90,140 L10,140 L10,125 Q50,75 10,25 Z" fill="none" class="hourglass-border"/>
                         <path id="sand-top" d="M15,22 Q50,65 85,22 Z" class="sand-fill" style="transform-origin: bottom;"/>
                         <path id="sand-bottom" d="M15,128 Q50,85 85,128 L85,135 L15,135 Z" class="sand-fill" style="transform: scaleY(0); transform-origin: bottom;"/>
                     </svg>
                 </div>
-                <div id="timerDisplay" class="text-5xl font-mono font-black mb-8 text-white">25:00</div>
-                <button onclick="toggleTimer()" id="btnTimer" class="w-full bg-gold text-black py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white transition">Lancer Focus</button>
+                <div id="timerDisplay" class="text-4xl font-mono font-black mb-4 text-white">25:00</div>
+                <button onclick="toggleTimer()" id="btnTimer" class="btn-ui btn-gold w-full py-3 uppercase text-[10px]">Démarrer le focus</button>
             </div>
 
-            <div class="lg:col-span-2 glass-card p-6 sm:p-8 space-y-6">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nouvelle Mission</h3>
-                    <button onclick="startVoice()"><svg id="micSvg" class="w-8 h-8" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+            <div class="md:col-span-2 grid grid-cols-2 gap-4">
+                <div class="glass-card p-6 flex flex-col justify-center items-center text-center">
+                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Focus Total</p>
+                    <p id="statTime" class="text-3xl font-black text-gold">0.0h</p>
                 </div>
-                <input type="text" id="taskInput" placeholder="Quelle est la priorité ?" class="w-full text-2xl font-bold bg-transparent border-b border-slate-800 focus:border-gold-primary outline-none pb-4 text-white">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <select id="taskPrio" class="bg-slate-900 p-4 rounded-2xl font-bold text-white outline-none"><option value="1">Priorité Alpha</option><option value="2">Priorité Beta</option><option value="3">Priorité Gamma</option></select>
-                    <div class="flex items-center bg-slate-900 p-4 rounded-2xl"><input type="number" id="taskDur" value="30" class="bg-transparent w-full font-black text-gold text-center outline-none"></div>
+                <div class="glass-card p-6 flex flex-col justify-center items-center text-center">
+                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Productivité</p>
+                    <p id="statProgress" class="text-3xl font-black text-white">0%</p>
                 </div>
-                <button onclick="addTask()" class="w-full border-2 border-gold-primary text-gold py-5 rounded-[25px] font-black uppercase tracking-widest hover:bg-gold hover:text-black transition">Enregistrer</button>
             </div>
         </div>
 
-        <div id="taskList" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20"></div>
+        <div class="glass-card p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                <h3 class="text-[10px] font-black text-gold uppercase tracking-tighter">Planification <span id="periodLabel">du Jour</span></h3>
+                <button onclick="startVoice()" class="btn-ui p-2 mic-btn">
+                    <svg class="mic-icon" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                </button>
+            </div>
+            
+            <textarea id="taskInput" rows="2" class="w-full bg-transparent text-lg font-bold outline-none text-white placeholder:text-slate-800" placeholder="Description de la mission..."></textarea>
+            
+            <div class="flex flex-wrap items-center gap-3 bg-black/30 p-4 rounded-2xl border border-white/5">
+                <div class="flex items-center gap-2">
+                    <input type="time" id="startTime" value="09:00">
+                    <input type="time" id="endTime" value="10:00">
+                </div>
+
+                <select id="prioSelect">
+                    <option value="1">🔴 Urgent</option>
+                    <option value="2" selected>🟡 Intermédiaire</option>
+                    <option value="3">🟢 Faible</option>
+                </select>
+
+                <div id="daySelectorContainer" class="hidden">
+                    <select id="daySelect">
+                        <option value="Lundi">Lundi</option><option value="Mardi">Mardi</option><option value="Mercredi">Mercredi</option>
+                        <option value="Jeudi">Jeudi</option><option value="Vendredi">Vendredi</option><option value="Samedi">Samedi</option><option value="Dimanche">Dimanche</option>
+                    </select>
+                </div>
+
+                <div id="weekSelectorContainer" class="hidden">
+                    <select id="weekSelect">
+                        <option value="Semaine 1">Semaine 1</option><option value="Semaine 2">Semaine 2</option>
+                        <option value="Semaine 3">Semaine 3</option><option value="Semaine 4">Semaine 4</option>
+                    </select>
+                </div>
+
+                <button onclick="addTasks()" class="btn-ui btn-gold flex-1 py-3 flex items-center justify-center gap-2 uppercase text-[10px] tracking-widest text-black">
+                    <span class="text-lg">+</span> Enregistrer
+                </button>
+            </div>
+        </div>
+
+        <div id="taskList" class="space-y-3 pb-20"></div>
+
     </main>
 
     <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
 
     <script>
-        // PWA REGISTER
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
-
-        let db = JSON.parse(localStorage.getItem('myFocus_v12')) || { phone: null, tasks: [], timeTotal: 0 };
+        let db = JSON.parse(localStorage.getItem('myFocus_v21')) || { tasks: [], timeTotal: 0, phone: "0600000000" };
+        let currentPeriod = 'day';
         let timerId = null, timeLeft = 1500;
 
-        function startApp() { const p = document.getElementById('phoneInput').value; if(p.length < 8) return; db.phone = p; save(); init(); }
-        function init() { if(!db.phone) return; document.getElementById('authOverlay').style.display = 'none'; document.getElementById('userInfos').textContent = "OPERATOR: " + db.phone; render(); }
-        
-        function startVoice() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Speech) return alert("Veuillez utiliser Chrome");
-            const rec = new Speech(); rec.lang = 'fr-FR';
-            rec.onstart = () => document.getElementById('micSvg').classList.add('mic-active');
-            rec.onend = () => document.getElementById('micSvg').classList.remove('mic-active');
-            rec.onresult = (e) => document.getElementById('taskInput').value = e.results[0][0].transcript;
-            rec.start();
+        setInterval(checkScheduleRappels, 60000);
+
+        function checkScheduleRappels() {
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+            db.tasks.forEach(t => {
+                if(t.period === 'day' && !t.done && t.start === currentTime) {
+                    if("Notification" in window && Notification.permission === "granted") {
+                        new Notification("MyFocus : Alerte !", { body: `Tâche urgente : ${t.text}` });
+                    }
+                    render();
+                }
+            });
+        }
+
+        function setPeriod(p) {
+            currentPeriod = p;
+            document.querySelectorAll('[id^="btn-"]').forEach(b => b.classList.remove('tab-active'));
+            document.getElementById('btn-' + p).classList.add('tab-active');
+            document.getElementById('daySelectorContainer').classList.toggle('hidden', p === 'day');
+            document.getElementById('weekSelectorContainer').classList.toggle('hidden', p !== 'month');
+            document.getElementById('periodLabel').textContent = p === 'day' ? 'du Jour' : (p === 'week' ? 'de la Semaine' : 'du Mois');
+            render();
+        }
+
+        function addTasks() {
+            const val = document.getElementById('taskInput').value.trim();
+            if(!val) return;
+            db.tasks.push({
+                id: Date.now() + Math.random(),
+                text: val,
+                start: document.getElementById('startTime').value,
+                end: document.getElementById('endTime').value,
+                prio: document.getElementById('prioSelect').value,
+                day: currentPeriod !== 'day' ? document.getElementById('daySelect').value : 'Aujourd\'hui',
+                week: currentPeriod === 'month' ? document.getElementById('weekSelect').value : null,
+                period: currentPeriod,
+                done: false
+            });
+            document.getElementById('taskInput').value = "";
+            save();
         }
 
         function toggleTimer() {
             if(timerId) { clearInterval(timerId); timerId = null; document.getElementById('btnTimer').textContent = "Reprendre"; }
             else {
-                document.getElementById('btnTimer').textContent = "Pause";
+                document.getElementById('btnTimer').textContent = "Focus en cours...";
                 timerId = setInterval(() => {
-                    timeLeft--; updateUI();
+                    timeLeft--; updateTimerUI();
                     if(timeLeft <= 0) { clearInterval(timerId); db.timeTotal += 25; document.getElementById('beep').play(); save(); resetTimer(); }
                 }, 1000);
             }
         }
 
-        function updateUI() {
+        function updateTimerUI() {
             const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-            const ratio = (timeLeft / 1500);
+            const ratio = timeLeft / 1500;
             document.getElementById('sand-top').style.transform = `scaleY(${ratio})`;
             document.getElementById('sand-bottom').style.transform = `scaleY(${1-ratio})`;
         }
 
-        function resetTimer() { clearInterval(timerId); timerId = null; timeLeft = 1500; updateUI(); document.getElementById('btnTimer').textContent = "Start"; }
-        
-        function addTask() { 
-            const t = document.getElementById('taskInput').value; if(!t) return; 
-            db.tasks.push({id:Date.now(), text:t, prio:parseInt(document.getElementById('taskPrio').value), dur:parseInt(document.getElementById('taskDur').value), done:false, start:Date.now()}); 
-            save(); document.getElementById('taskInput').value=''; 
-        }
+        function resetTimer() { timeLeft = 1500; updateTimerUI(); document.getElementById('btnTimer').textContent = "Démarrer le focus"; }
 
         function render() {
             const list = document.getElementById('taskList'); list.innerHTML = '';
-            db.tasks.forEach(t => { 
-                const dot = t.prio==1?'dot-red':t.prio==2?'dot-yellow':'dot-green';
-                const div = document.createElement('div'); 
-                div.className = `glass-card p-6 flex items-center justify-between ${t.done?'opacity-20 grayscale':''}`;
-                div.innerHTML = `<div class="flex items-center gap-4"><span class="dot ${dot}"></span><p class="font-black text-sm text-white">${t.text}</p></div><button onclick="toggleTask(${t.id})" class="w-10 h-10 rounded-xl bg-gold flex items-center justify-center text-black font-bold">${t.done?'✓':''}</button>`;
+            // Tri par priorité (1, 2, 3) puis par heure
+            const filtered = db.tasks.filter(t => t.period === currentPeriod).sort((a,b) => a.prio - b.prio || a.start.localeCompare(b.start));
+            
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+
+            filtered.forEach(t => {
+                const isAlert = !t.done && t.start === currentTime;
+                const div = document.createElement('div');
+                div.className = `glass-card p-5 flex items-center justify-between transition-all prio-${t.prio} ${t.done ? 'opacity-30' : ''} ${isAlert ? 'task-alert' : ''}`;
+                const detail = t.week ? `${t.week} - ${t.day}` : (t.period === 'week' ? t.day : '');
+                
+                const dotColor = t.prio == 1 ? 'var(--urgent)' : (t.prio == 2 ? 'var(--inter)' : 'var(--faible)');
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-4 flex-1 cursor-pointer" onclick="toggleTask(${t.id})">
+                        <div class="check-box ${t.done ? 'checked' : ''}">${t.done ? '✓' : ''}</div>
+                        <div>
+                            <p class="font-bold text-white ${t.done ? 'line-through' : ''}"><span class="dot" style="background:${dotColor}"></span>${t.text}</p>
+                            <p class="text-[10px] font-black text-gold uppercase">${detail} | ${t.start} — ${t.end}</p>
+                        </div>
+                    </div>
+                    <button onclick="deleteTask(${t.id})" class="btn-ui w-10 h-10 text-xs text-red-500/40 font-bold">✕</button>
+                `;
                 list.appendChild(div);
             });
+
             document.getElementById('statTime').textContent = (db.timeTotal/60).toFixed(1) + "h";
-            document.getElementById('statDone').textContent = db.tasks.filter(x=>x.done).length;
-            document.getElementById('statPending').textContent = db.tasks.filter(x=>!x.done).length;
+            const doneCount = filtered.filter(t => t.done).length;
+            const progress = filtered.length > 0 ? Math.round((doneCount / filtered.length) * 100) : 0;
+            document.getElementById('statProgress').textContent = progress + "%";
+            document.getElementById('topProgressBar').style.width = progress + "%";
         }
 
-        function toggleTask(id) { const t = db.tasks.find(x=>x.id===id); t.done = !t.done; save(); }
-        function save() { localStorage.setItem('myFocus_v12', JSON.stringify(db)); render(); }
-        init();
+        function toggleTask(id) { const t = db.tasks.find(x => x.id === id); t.done = !t.done; save(); }
+        function deleteTask(id) { db.tasks = db.tasks.filter(t => t.id !== id); save(); }
+        function save() { localStorage.setItem('myFocus_v21', JSON.stringify(db)); render(); }
+        function openModal() { document.getElementById('reportModal').style.display = 'flex'; renderStats(); }
+        function closeModal() { document.getElementById('reportModal').style.display = 'none'; }
+        function renderStats() {
+            const done = db.tasks.filter(t => t.done).length;
+            document.getElementById('reportStats').innerHTML = `Focus: ${(db.timeTotal/60).toFixed(1)}h<br>Missions: ${done}/${db.tasks.length}`;
+        }
+        function sendReport() {
+            const content = `MYFOCUS\nFocus: ${(db.timeTotal/60).toFixed(1)}h\nMissions: ${db.tasks.filter(t=>t.done).length}/${db.tasks.length}`;
+            window.location.href = `sms:${db.phone}?body=${encodeURIComponent(content)}`;
+        }
+        function startVoice() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!Speech) return;
+            const rec = new Speech(); rec.lang = 'fr-FR';
+            rec.onresult = (e) => document.getElementById('taskInput').value = e.results[0][0].transcript;
+            rec.start();
+        }
+
+        if ("Notification" in window) Notification.requestPermission();
+        render();
     </script>
 </body>
 </html>
