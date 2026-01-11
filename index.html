@@ -3,38 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFocus Platinum - Priorités</title>
+    <title>MyFocus Platinum - v25.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { --gold: #D4AF37; --bg: #05070a; --card: #111418; --urgent: #ff4d4d; --inter: #fbbf24; --faible: #2ecc71; }
         body { background-color: var(--bg); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .glass-card { background: var(--card); border: 1.5px solid rgba(212, 175, 55, 0.15); border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        
+        .btn-report { background: rgba(212, 175, 55, 0.1); border: 1.5px solid var(--gold); border-radius: 12px; color: var(--gold); font-weight: 900; transition: 0.3s; }
+        .btn-report:hover { background: var(--gold); color: black; }
         .btn-ui { background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.15); border-radius: 16px; transition: 0.2s; }
-        .btn-ui:active { transform: scale(0.95); border-color: var(--gold); }
         .btn-gold { background: var(--gold); color: black; border-color: rgba(255,255,255,0.3); font-weight: 900; }
-        
         .progress-container { height: 4px; background: rgba(255,255,255,0.05); width: 100%; position: fixed; top: 0; left: 0; z-index: 100; }
         #topProgressBar { height: 100%; width: 0%; background: var(--gold); box-shadow: 0 0 15px var(--gold); transition: width 0.5s ease; }
-
         .sand-fill { fill: var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
         .hourglass-border { stroke: var(--gold); stroke-width: 3px; }
-        
         .check-box { width: 26px; height: 26px; border: 2px solid var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
         .checked { background: var(--gold); }
-        
         .tab-active { border-bottom: 3px solid var(--gold); color: var(--gold); }
-        input[type="time"], select { background: #1a1e23; color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 10px; font-weight: bold; outline: none; font-size: 12px; }
-
-        /* Badges de priorité */
+        input[type="time"], select, .user-input { background: #1a1e23; color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 10px; font-weight: bold; outline: none; font-size: 12px; }
         .prio-1 { border-left: 4px solid var(--urgent); }
         .prio-2 { border-left: 4px solid var(--inter); }
         .prio-3 { border-left: 4px solid var(--faible); }
-        
         .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-
-        @keyframes pulse-gold { 0% { border-color: var(--gold); } 50% { border-color: #fff; box-shadow: 0 0 15px var(--gold); } 100% { border-color: var(--gold); } }
-        .task-alert { animation: pulse-gold 2s infinite; border-width: 2px; }
+        @keyframes pulse-alert { 0% { box-shadow: 0 0 0px var(--urgent); } 50% { box-shadow: 0 0 20px var(--urgent); } 100% { box-shadow: 0 0 0px var(--urgent); } }
+        .incoming-task { animation: pulse-alert 1.5s infinite; border: 1px solid var(--urgent) !important; }
         .mic-icon { width: 24px; height: 24px; fill: var(--gold); }
     </style>
 </head>
@@ -42,34 +35,25 @@
 
     <div class="progress-container"><div id="topProgressBar"></div></div>
 
-    <div id="reportModal" class="fixed inset-0 z-[110] hidden bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="glass-card p-8 max-w-sm w-full space-y-6 text-center">
-            <h2 class="text-xl font-black text-gold uppercase tracking-widest">Rapport d'Activité</h2>
-            <div id="reportStats" class="space-y-2 text-sm italic text-slate-400"></div>
-            <button onclick="sendReport()" class="btn-ui btn-gold w-full py-4 rounded-2xl uppercase text-xs text-black">Partager par SMS</button>
-            <button onclick="closeModal()" class="w-full text-slate-500 text-[10px] font-black uppercase">Fermer</button>
-        </div>
-    </div>
-
     <nav class="p-4 pt-6 sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gold rounded-xl flex items-center justify-center text-black font-black text-xl">M</div>
-                <h1 class="font-black italic text-xl tracking-tighter text-white">MyFocus</h1>
+        <div class="max-w-4xl mx-auto flex justify-between items-center gap-4">
+            <div class="flex items-center gap-3 min-w-fit">
+                <div class="w-10 h-10 bg-gold rounded-xl flex items-center justify-center text-black font-black text-xl shadow-[0_0_10px_rgba(212,175,55,0.5)]">M</div>
+                <input type="text" id="userName" onchange="saveUserName()" class="user-input bg-transparent border-none text-white font-black italic text-xl p-0 w-32 focus:ring-0" placeholder="Prénom/N°">
             </div>
             <div class="flex gap-4">
-                <button onclick="setPeriod('day')" id="btn-day" class="text-[10px] font-black uppercase tab-active">Jour</button>
-                <button onclick="setPeriod('week')" id="btn-week" class="text-[10px] font-black uppercase">Semaine</button>
-                <button onclick="setPeriod('month')" id="btn-month" class="text-[10px] font-black uppercase">Mois</button>
+                <button onclick="setPeriod('day')" id="btn-day" class="text-[11px] font-black uppercase tab-active tracking-wider">Jour</button>
+                <button onclick="setPeriod('week')" id="btn-week" class="text-[11px] font-black uppercase tracking-wider text-slate-400">Semaine</button>
+                <button onclick="setPeriod('month')" id="btn-month" class="text-[11px] font-black uppercase tracking-wider text-slate-400">Mois</button>
             </div>
-            <button onclick="openModal()" class="btn-ui px-4 py-2 text-[9px] font-black text-gold uppercase">Rapport</button>
+            <button onclick="openModal()" class="btn-report px-5 py-2 text-[10px] uppercase tracking-widest">Rapport</button>
         </div>
     </nav>
 
     <main class="max-w-4xl mx-auto p-4 space-y-6">
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="glass-card p-8 flex flex-col items-center justify-center">
+            <div class="glass-card p-8 flex flex-col items-center justify-center text-center">
                 <div class="w-20 h-24 mb-4">
                     <svg viewBox="0 0 100 150" class="w-full h-full">
                         <path d="M10,10 L90,10 L90,25 Q50,75 90,125 L90,140 L10,140 L10,125 Q50,75 10,25 Z" fill="none" class="hourglass-border"/>
@@ -80,13 +64,12 @@
                 <div id="timerDisplay" class="text-4xl font-mono font-black mb-4 text-white">25:00</div>
                 <button onclick="toggleTimer()" id="btnTimer" class="btn-ui btn-gold w-full py-3 uppercase text-[10px]">Démarrer le focus</button>
             </div>
-
-            <div class="md:col-span-2 grid grid-cols-2 gap-4">
-                <div class="glass-card p-6 flex flex-col justify-center items-center text-center">
+            <div class="md:col-span-2 grid grid-cols-2 gap-4 text-center">
+                <div class="glass-card p-6 flex flex-col justify-center items-center">
                     <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Focus Total</p>
                     <p id="statTime" class="text-3xl font-black text-gold">0.0h</p>
                 </div>
-                <div class="glass-card p-6 flex flex-col justify-center items-center text-center">
+                <div class="glass-card p-6 flex flex-col justify-center items-center">
                     <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Productivité</p>
                     <p id="statProgress" class="text-3xl font-black text-white">0%</p>
                 </div>
@@ -95,170 +78,161 @@
 
         <div class="glass-card p-6 space-y-4">
             <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                <h3 class="text-[10px] font-black text-gold uppercase tracking-tighter">Planification <span id="periodLabel">du Jour</span></h3>
-                <button onclick="startVoice()" class="btn-ui p-2 mic-btn">
-                    <svg class="mic-icon" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                </button>
+                <h3 class="text-[10px] font-black text-gold uppercase tracking-tighter">Planification</h3>
+                <button onclick="startVoice()" class="btn-ui p-2"><svg class="mic-icon" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
             </div>
-            
-            <textarea id="taskInput" rows="2" class="w-full bg-transparent text-lg font-bold outline-none text-white placeholder:text-slate-800" placeholder="Description de la mission..."></textarea>
-            
+            <textarea id="taskInput" rows="2" class="w-full bg-transparent text-lg font-bold outline-none text-white placeholder:text-slate-800" placeholder="Votre mission..."></textarea>
             <div class="flex flex-wrap items-center gap-3 bg-black/30 p-4 rounded-2xl border border-white/5">
-                <div class="flex items-center gap-2">
-                    <input type="time" id="startTime" value="09:00">
-                    <input type="time" id="endTime" value="10:00">
-                </div>
-
-                <select id="prioSelect">
-                    <option value="1">🔴 Urgent</option>
-                    <option value="2" selected>🟡 Intermédiaire</option>
-                    <option value="3">🟢 Faible</option>
-                </select>
-
-                <div id="daySelectorContainer" class="hidden">
-                    <select id="daySelect">
-                        <option value="Lundi">Lundi</option><option value="Mardi">Mardi</option><option value="Mercredi">Mercredi</option>
-                        <option value="Jeudi">Jeudi</option><option value="Vendredi">Vendredi</option><option value="Samedi">Samedi</option><option value="Dimanche">Dimanche</option>
-                    </select>
-                </div>
-
-                <div id="weekSelectorContainer" class="hidden">
-                    <select id="weekSelect">
-                        <option value="Semaine 1">Semaine 1</option><option value="Semaine 2">Semaine 2</option>
-                        <option value="Semaine 3">Semaine 3</option><option value="Semaine 4">Semaine 4</option>
-                    </select>
-                </div>
-
-                <button onclick="addTasks()" class="btn-ui btn-gold flex-1 py-3 flex items-center justify-center gap-2 uppercase text-[10px] tracking-widest text-black">
-                    <span class="text-lg">+</span> Enregistrer
-                </button>
+                <input type="time" id="startTime" value="09:00">
+                <input type="time" id="endTime" value="10:00">
+                <select id="prioSelect"><option value="1">🔴 Urgent</option><option value="2" selected>🟡 Intermédiaire</option><option value="3">🟢 Faible</option></select>
+                <button onclick="addTasks()" class="btn-ui btn-gold flex-1 py-3 uppercase text-[10px]"><b>+</b> Enregistrer</button>
             </div>
         </div>
 
         <div id="taskList" class="space-y-3 pb-20"></div>
-
     </main>
 
+    <div id="reportModal" class="fixed inset-0 z-[110] hidden bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card p-8 max-w-sm w-full space-y-5 text-center">
+            <h2 class="text-xl font-black text-gold uppercase tracking-widest">Mon Rapport</h2>
+            <div id="reportStats" class="text-sm italic text-slate-400 bg-white/5 p-4 rounded-xl"></div>
+            
+            <div class="grid grid-cols-1 gap-3">
+                <button onclick="sendWhatsApp()" class="btn-ui py-3 flex items-center justify-center gap-2 bg-green-600/20 border-green-600/50 text-green-400 uppercase text-[10px] font-bold">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.675 1.437 5.662 1.437h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> WhatsApp
+                </button>
+                <button onclick="exportToPDF()" class="btn-ui py-3 flex items-center justify-center gap-2 bg-blue-600/20 border-blue-600/50 text-blue-400 uppercase text-[10px] font-bold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Imprimer PDF
+                </button>
+            </div>
+            <button onclick="closeModal()" class="w-full text-slate-500 text-[10px] font-black uppercase">Fermer</button>
+        </div>
+    </div>
+
     <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
+    <audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('myFocus_v21')) || { tasks: [], timeTotal: 0, phone: "0600000000" };
+        let db = JSON.parse(localStorage.getItem('myFocus_v25')) || { tasks: [], timeTotal: 0, userName: "" };
         let currentPeriod = 'day';
         let timerId = null, timeLeft = 1500;
 
-        setInterval(checkScheduleRappels, 60000);
+        document.getElementById('userName').value = db.userName || "";
+        function saveUserName() { db.userName = document.getElementById('userName').value; save(); }
 
-        function checkScheduleRappels() {
+        setInterval(monitorTasks, 30000);
+        function monitorTasks() {
             const now = new Date();
-            const currentTime = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
             db.tasks.forEach(t => {
-                if(t.period === 'day' && !t.done && t.start === currentTime) {
-                    if("Notification" in window && Notification.permission === "granted") {
-                        new Notification("MyFocus : Alerte !", { body: `Tâche urgente : ${t.text}` });
+                if (t.period === 'day' && !t.done) {
+                    const [h, m] = t.start.split(':').map(Number);
+                    const tDate = new Date(); tDate.setHours(h, m, 0);
+                    const diffMins = Math.floor((tDate - now) / 60000);
+                    if (diffMins === 5 && !t.notified) {
+                        sendNotification(`Commence bientôt : ${t.text}`);
+                        document.getElementById('alertSound').play();
+                        t.notified = true; render();
                     }
-                    render();
                 }
             });
         }
 
+        function sendNotification(msg) { if ("Notification" in window && Notification.permission === "granted") new Notification("MyFocus", { body: msg }); }
+
         function setPeriod(p) {
             currentPeriod = p;
-            document.querySelectorAll('[id^="btn-"]').forEach(b => b.classList.remove('tab-active'));
-            document.getElementById('btn-' + p).classList.add('tab-active');
-            document.getElementById('daySelectorContainer').classList.toggle('hidden', p === 'day');
-            document.getElementById('weekSelectorContainer').classList.toggle('hidden', p !== 'month');
-            document.getElementById('periodLabel').textContent = p === 'day' ? 'du Jour' : (p === 'week' ? 'de la Semaine' : 'du Mois');
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('tab-active', 'text-white'));
+            document.getElementById('btn-' + p).classList.add('tab-active', 'text-white');
             render();
         }
 
         function addTasks() {
             const val = document.getElementById('taskInput').value.trim();
             if(!val) return;
-            db.tasks.push({
-                id: Date.now() + Math.random(),
-                text: val,
-                start: document.getElementById('startTime').value,
-                end: document.getElementById('endTime').value,
-                prio: document.getElementById('prioSelect').value,
-                day: currentPeriod !== 'day' ? document.getElementById('daySelect').value : 'Aujourd\'hui',
-                week: currentPeriod === 'month' ? document.getElementById('weekSelect').value : null,
-                period: currentPeriod,
-                done: false
-            });
-            document.getElementById('taskInput').value = "";
-            save();
+            db.tasks.push({ id: Date.now(), text: val, start: document.getElementById('startTime').value, end: document.getElementById('endTime').value, prio: document.getElementById('prioSelect').value, period: currentPeriod, done: false, notified: false });
+            document.getElementById('taskInput').value = ""; save();
         }
-
-        function toggleTimer() {
-            if(timerId) { clearInterval(timerId); timerId = null; document.getElementById('btnTimer').textContent = "Reprendre"; }
-            else {
-                document.getElementById('btnTimer').textContent = "Focus en cours...";
-                timerId = setInterval(() => {
-                    timeLeft--; updateTimerUI();
-                    if(timeLeft <= 0) { clearInterval(timerId); db.timeTotal += 25; document.getElementById('beep').play(); save(); resetTimer(); }
-                }, 1000);
-            }
-        }
-
-        function updateTimerUI() {
-            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-            const ratio = timeLeft / 1500;
-            document.getElementById('sand-top').style.transform = `scaleY(${ratio})`;
-            document.getElementById('sand-bottom').style.transform = `scaleY(${1-ratio})`;
-        }
-
-        function resetTimer() { timeLeft = 1500; updateTimerUI(); document.getElementById('btnTimer').textContent = "Démarrer le focus"; }
 
         function render() {
             const list = document.getElementById('taskList'); list.innerHTML = '';
-            // Tri par priorité (1, 2, 3) puis par heure
             const filtered = db.tasks.filter(t => t.period === currentPeriod).sort((a,b) => a.prio - b.prio || a.start.localeCompare(b.start));
-            
             const now = new Date();
-            const currentTime = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-
             filtered.forEach(t => {
-                const isAlert = !t.done && t.start === currentTime;
+                const [h, m] = t.start.split(':').map(Number);
+                const tDate = new Date(); tDate.setHours(h, m, 0);
+                const isIncoming = Math.floor((tDate - now) / 60000) <= 5 && !t.done;
                 const div = document.createElement('div');
-                div.className = `glass-card p-5 flex items-center justify-between transition-all prio-${t.prio} ${t.done ? 'opacity-30' : ''} ${isAlert ? 'task-alert' : ''}`;
-                const detail = t.week ? `${t.week} - ${t.day}` : (t.period === 'week' ? t.day : '');
-                
+                div.className = `glass-card p-5 flex items-center justify-between transition-all prio-${t.prio} ${t.done ? 'opacity-30' : ''} ${isIncoming ? 'incoming-task' : ''}`;
                 const dotColor = t.prio == 1 ? 'var(--urgent)' : (t.prio == 2 ? 'var(--inter)' : 'var(--faible)');
-
                 div.innerHTML = `
                     <div class="flex items-center gap-4 flex-1 cursor-pointer" onclick="toggleTask(${t.id})">
                         <div class="check-box ${t.done ? 'checked' : ''}">${t.done ? '✓' : ''}</div>
                         <div>
                             <p class="font-bold text-white ${t.done ? 'line-through' : ''}"><span class="dot" style="background:${dotColor}"></span>${t.text}</p>
-                            <p class="text-[10px] font-black text-gold uppercase">${detail} | ${t.start} — ${t.end}</p>
+                            <p class="text-[10px] font-black text-gold uppercase">${isIncoming ? '<span class="text-red-500">Commence bientôt</span> | ' : ''} ${t.start} — ${t.end}</p>
                         </div>
                     </div>
-                    <button onclick="deleteTask(${t.id})" class="btn-ui w-10 h-10 text-xs text-red-500/40 font-bold">✕</button>
-                `;
+                    <button onclick="deleteTask(${t.id})" class="btn-ui w-10 h-10 text-xs text-red-500/40 font-bold">✕</button>`;
                 list.appendChild(div);
             });
-
-            document.getElementById('statTime').textContent = (db.timeTotal/60).toFixed(1) + "h";
-            const doneCount = filtered.filter(t => t.done).length;
-            const progress = filtered.length > 0 ? Math.round((doneCount / filtered.length) * 100) : 0;
-            document.getElementById('statProgress').textContent = progress + "%";
+            const progress = filtered.length > 0 ? Math.round((filtered.filter(t=>t.done).length / filtered.length) * 100) : 0;
             document.getElementById('topProgressBar').style.width = progress + "%";
+            document.getElementById('statProgress').textContent = progress + "%";
+            document.getElementById('statTime').textContent = (db.timeTotal/60).toFixed(1) + "h";
         }
 
+        // Fonctions Rapport
+        function openModal() {
+            document.getElementById('reportModal').style.display = 'flex';
+            const done = db.tasks.filter(t => t.done).length;
+            document.getElementById('reportStats').innerHTML = `Focus: ${(db.timeTotal/60).toFixed(1)}h<br>Missions: ${done}/${db.tasks.length} complétées.`;
+        }
+        function closeModal() { document.getElementById('reportModal').style.display = 'none'; }
+
+        function sendWhatsApp() {
+            const user = db.userName || "Utilisateur";
+            const text = `*RAPPORT MYFOCUS - ${user}*\n\n⏱ Focus Total: ${(db.timeTotal/60).toFixed(1)}h\n✅ Missions: ${db.tasks.filter(t=>t.done).length}/${db.tasks.length}\n\n_Envoyé depuis MyFocus Platinum_`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const user = db.userName || "Utilisateur";
+            doc.setFont("helvetica", "bold");
+            doc.text(`Rapport MyFocus Platinum - ${user}`, 20, 20);
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Focus Total : ${(db.timeTotal/60).toFixed(1)} heures`, 20, 35);
+            doc.text(`Tâches complétées : ${db.tasks.filter(t=>t.done).length}/${db.tasks.length}`, 20, 45);
+            doc.text("Détails des missions :", 20, 60);
+            let y = 70;
+            db.tasks.forEach(t => {
+                const status = t.done ? "[V]" : "[ ]";
+                doc.text(`${status} ${t.start} - ${t.text}`, 25, y);
+                y += 10;
+            });
+            doc.save(`Rapport_MyFocus_${user}.pdf`);
+        }
+
+        // Timer Logic
+        function toggleTimer() {
+            if(timerId) { clearInterval(timerId); timerId = null; document.getElementById('btnTimer').textContent = "Reprendre"; }
+            else {
+                document.getElementById('btnTimer').textContent = "Focus...";
+                timerId = setInterval(() => { timeLeft--; updateTimerUI(); if(timeLeft <= 0) { clearInterval(timerId); db.timeTotal += 25; document.getElementById('beep').play(); save(); resetTimer(); } }, 1000);
+            }
+        }
+        function updateTimerUI() {
+            document.getElementById('timerDisplay').textContent = `${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2,'0')}`;
+            document.getElementById('sand-top').style.transform = `scaleY(${timeLeft/1500})`;
+            document.getElementById('sand-bottom').style.transform = `scaleY(${1-(timeLeft/1500)})`;
+        }
+        function resetTimer() { timeLeft = 1500; updateTimerUI(); document.getElementById('btnTimer').textContent = "Démarrer le focus"; }
         function toggleTask(id) { const t = db.tasks.find(x => x.id === id); t.done = !t.done; save(); }
         function deleteTask(id) { db.tasks = db.tasks.filter(t => t.id !== id); save(); }
-        function save() { localStorage.setItem('myFocus_v21', JSON.stringify(db)); render(); }
-        function openModal() { document.getElementById('reportModal').style.display = 'flex'; renderStats(); }
-        function closeModal() { document.getElementById('reportModal').style.display = 'none'; }
-        function renderStats() {
-            const done = db.tasks.filter(t => t.done).length;
-            document.getElementById('reportStats').innerHTML = `Focus: ${(db.timeTotal/60).toFixed(1)}h<br>Missions: ${done}/${db.tasks.length}`;
-        }
-        function sendReport() {
-            const content = `MYFOCUS\nFocus: ${(db.timeTotal/60).toFixed(1)}h\nMissions: ${db.tasks.filter(t=>t.done).length}/${db.tasks.length}`;
-            window.location.href = `sms:${db.phone}?body=${encodeURIComponent(content)}`;
-        }
+        function save() { localStorage.setItem('myFocus_v25', JSON.stringify(db)); render(); }
         function startVoice() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if(!Speech) return;
@@ -266,7 +240,6 @@
             rec.onresult = (e) => document.getElementById('taskInput').value = e.results[0][0].transcript;
             rec.start();
         }
-
         if ("Notification" in window) Notification.requestPermission();
         render();
     </script>
