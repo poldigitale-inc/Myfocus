@@ -3,175 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFocus Pro - V11 Responsive</title>
+    <title>MyFocus Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --main-color: #6366f1; }
+        :root { --main-color: #00f2fe; --bg-dark: #010b1a; }
         .bg-custom { background-color: var(--main-color); }
         .text-custom { color: var(--main-color); }
         
-        /* Mode Sombre */
-        body.dark-theme { background-color: #0f172a; color: #f8fafc; }
-        .dark-theme .bg-white { background-color: #1e293b; border-color: #334155; color: #f8fafc; }
-        .dark-theme input, .dark-theme select { background-color: #334155; color: white; border-color: #475569; }
-        .dark-theme #nextTaskInfo { color: #cbd5e1; }
+        body { background-color: #f4f7f9; transition: all 0.5s ease; }
+        body.dark-theme { background-color: var(--bg-dark); color: #e2e8f0; }
 
-        /* Icones Priorité */
-        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-        .dot-red { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
-        .dot-yellow { background-color: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
-        .dot-green { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
-
-        /* Animation Sablier */
-        .sand-top { transition: clip-path 1s linear; clip-path: inset(0 0 0 0); }
-        .sand-bottom { transition: clip-path 1s linear; clip-path: inset(100% 0 0 0); }
-        
-        .alarm-blink { animation: alert-bg 1s infinite; }
-        @keyframes alert-bg { 50% { background-color: #fee2e2; border-color: #ef4444; } }
-
-        .mic-active { animation: pulse-mic 1s infinite; fill: #ef4444 !important; }
-        @keyframes pulse-mic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-
-        /* Responsivité ajustements */
-        @media (max-width: 640px) {
-            .stat-card { padding: 0.75rem; }
-            .stat-val { font-size: 1.25rem; }
+        /* Style des cartes */
+        .glass-card { 
+            background: white; 
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-radius: 35px;
         }
+        .dark-theme .glass-card { background: #0a1628; border-color: #1e293b; }
+
+        /* Nouveau Sablier SVG */
+        .hourglass-container { position: relative; width: 100px; height: 120px; }
+        .sand-fill { fill: #00f2fe; transition: height 1s linear; }
+
+        /* Animations */
+        .mic-active { animation: pulse-red 1s infinite; fill: #ff4b2b !important; }
+        @keyframes pulse-red { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); filter: drop-shadow(0 0 10px red); } }
+        
+        .alarm-blink { animation: alert-flash 1s infinite; }
+        @keyframes alert-flash { 50% { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; } }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-red { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .dot-yellow { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
+        .dot-green { background: #10b981; box-shadow: 0 0 8px #10b981; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-slate-900 transition-colors duration-500">
+<body class="min-h-screen font-sans text-slate-900">
 
-    <div id="authOverlay" class="fixed inset-0 bg-slate-900/95 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white p-6 sm:p-8 rounded-[40px] max-w-sm w-full text-center shadow-2xl">
-            <h2 class="text-2xl font-black mb-6">Activation MyFocus</h2>
-            <input type="tel" id="phoneInput" placeholder="Numéro de téléphone" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 mb-6 outline-none focus:border-custom font-bold text-center">
-            <button onclick="startApp()" class="w-full bg-custom text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl">Démarrer</button>
+    <div id="authOverlay" class="fixed inset-0 bg-slate-900/98 z-[100] flex items-center justify-center p-4">
+        <div class="glass-card p-8 max-w-sm w-full text-center">
+            <h2 class="text-2xl font-black mb-6">Initialisation V12</h2>
+            <input type="tel" id="phoneInput" placeholder="Numéro de mobile" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 mb-6 outline-none focus:border-cyan-400 font-bold text-center">
+            <button onclick="startApp()" class="w-full bg-cyan-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-cyan-400 transition">Entrer</button>
         </div>
     </div>
 
-    <nav class="bg-white border-b p-4 sticky top-0 z-50">
+    <nav class="p-4 sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b dark:bg-slate-900/80">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-custom rounded-lg flex items-center justify-center text-white font-black italic shadow-sm">M</div>
-                <h1 class="font-black italic text-sm sm:text-base">MyFocus <span class="text-custom">PRO</span></h1>
+                <img src="https://cdn-icons-png.flaticon.com/512/3602/3602145.png" class="w-8 h-8" alt="logo">
+                <h1 class="font-black italic text-lg tracking-tighter">MYFOCUS <span class="text-cyan-500">ULTIMATE</span></h1>
             </div>
-            <div class="flex items-center gap-3">
-                <span id="themeBadge" class="hidden sm:inline text-[9px] font-bold px-2 py-1 bg-slate-100 rounded-full dark:text-slate-800">MODE JOUR</span>
-                <div id="userInfos" class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase"></div>
-            </div>
+            <div id="userInfos" class="text-[10px] font-black text-slate-400 tracking-widest"></div>
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <div class="bg-white p-4 rounded-[25px] shadow-sm border border-slate-100 text-center stat-card">
-                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Focus Total</p>
-                <p id="statTime" class="text-lg sm:text-2xl font-black text-custom stat-val">0.0h</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass-card p-5 text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Focus Cumulé</p>
+                <p id="statTime" class="text-2xl font-black text-cyan-500">0.0h</p>
             </div>
-            <div class="bg-white p-4 rounded-[25px] shadow-sm border border-slate-100 text-center stat-card">
-                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">Terminées</p>
-                <p id="statDone" class="text-lg sm:text-2xl font-black text-emerald-500 stat-val">0</p>
+            <div class="glass-card p-5 text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Objectifs OK</p>
+                <p id="statDone" class="text-2xl font-black text-emerald-500">0</p>
             </div>
-            <div class="bg-white p-4 rounded-[25px] shadow-sm border border-slate-100 text-center stat-card">
-                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">En cours</p>
-                <p id="statPending" class="text-lg sm:text-2xl font-black text-amber-500 stat-val">0</p>
+            <div class="glass-card p-5 text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">À Venir</p>
+                <p id="statPending" class="text-2xl font-black text-amber-500">0</p>
             </div>
-            <div class="bg-white p-4 rounded-[25px] shadow-sm border border-slate-100 text-center stat-card">
-                <p class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase">En retard</p>
-                <p id="statLate" class="text-lg sm:text-2xl font-black text-red-500 stat-val">0</p>
+            <div class="glass-card p-5 text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Retards</p>
+                <p id="statLate" class="text-2xl font-black text-red-500">0</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <div class="bg-white p-6 sm:p-8 rounded-[40px] shadow-xl border border-slate-50 flex flex-col items-center">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Focus Timer</h3>
-                <div class="relative w-20 h-28 sm:w-24 sm:h-32 mb-4">
-                    <svg viewBox="0 0 100 150" class="w-full h-full">
-                        <path d="M20,10 L80,10 L80,20 L55,75 L80,130 L80,140 L20,140 L20,130 L45,75 L20,20 Z" fill="none" stroke="#e2e8f0" stroke-width="4"/>
-                        <path id="sand-top" d="M25,20 L75,20 L50,75 Z" fill="#6366f1" class="sand-top"/>
-                        <path id="sand-bottom" d="M50,75 L75,130 L25,130 Z" fill="#6366f1" class="sand-bottom"/>
+            <div class="glass-card p-8 flex flex-col items-center justify-center min-h-[400px]">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-8 tracking-[0.2em]">Focus Timer</h3>
+                
+                <div class="hourglass-container mb-8">
+                    <svg viewBox="0 0 100 150" class="w-full h-full drop-shadow-2xl">
+                        <path d="M10,10 L90,10 L90,25 Q50,75 90,125 L90,140 L10,140 L10,125 Q50,75 10,25 Z" fill="none" stroke="#00f2fe" stroke-width="4" stroke-linejoin="round"/>
+                        <path id="sand-top" d="M15,22 Q50,65 85,22 Z" class="sand-fill"/>
+                        <path id="sand-bottom" d="M15,128 Q50,85 85,128 L85,135 L15,135 Z" class="sand-fill" style="height: 0;"/>
                     </svg>
                 </div>
-                <div id="timerDisplay" class="text-4xl sm:text-5xl font-mono font-black mb-6">25:00</div>
-                <button onclick="toggleTimer()" id="btnTimer" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-custom transition">Démarrer Focus</button>
+
+                <div id="timerDisplay" class="text-5xl font-mono font-black mb-8 tracking-tighter">25:00</div>
+                <button onclick="toggleTimer()" id="btnTimer" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl hover:scale-105 transition">Start Session</button>
             </div>
 
-            <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-[40px] shadow-sm border border-slate-100 space-y-6">
+            <div class="lg:col-span-2 glass-card p-6 sm:p-8 space-y-6">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nouvelle Mission</h3>
-                    <button id="vocBtn" onclick="startVoice()" class="p-2 rounded-full hover:bg-slate-50 transition-all">
-                        <svg class="w-10 h-10 fill-slate-400" id="micSvg" viewBox="0 0 24 24">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Planning Missions</h3>
+                    <button onclick="startVoice()" class="p-3 bg-slate-50 rounded-full hover:bg-cyan-50 transition-colors">
+                        <svg id="micSvg" class="w-8 h-8 fill-slate-400" viewBox="0 0 24 24">
                             <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
                         </svg>
                     </button>
                 </div>
-                <input type="text" id="taskInput" placeholder="Dicter ici..." class="w-full text-xl sm:text-2xl font-bold bg-transparent outline-none border-b-2 border-slate-100 focus:border-custom pb-3">
+
+                <input type="text" id="taskInput" placeholder="En quoi puis-je vous aider ?" class="w-full text-2xl font-bold bg-transparent border-b-2 border-slate-100 focus:border-cyan-400 outline-none pb-4 transition-all">
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <select id="taskPrio" class="bg-slate-50 p-4 rounded-2xl font-bold outline-none">
-                        <option value="1">🔴 Urgent</option>
-                        <option value="2">🟡 Moyen</option>
-                        <option value="3">🟢 Bas</option>
-                    </select>
-                    <div class="flex items-center bg-slate-50 p-4 rounded-2xl">
-                        <input type="number" id="taskDur" value="30" min="30" class="bg-transparent w-full font-black text-custom outline-none text-center">
-                        <span class="text-[9px] font-black text-slate-400 uppercase">Min</span>
+                    <div class="space-y-2">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase px-2">Niveau d'urgence</label>
+                        <select id="taskPrio" class="w-full bg-slate-50 p-4 rounded-2xl font-bold appearance-none outline-none">
+                            <option value="1">🔴 Priorité Alpha</option>
+                            <option value="2">🟡 Priorité Beta</option>
+                            <option value="3">🟢 Priorité Gamma</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase px-2">Durée estimée</label>
+                        <div class="flex items-center bg-slate-50 p-4 rounded-2xl">
+                            <input type="number" id="taskDur" value="30" min="30" class="bg-transparent w-full font-black text-cyan-600 outline-none text-center">
+                            <span class="text-[9px] font-black text-slate-400 uppercase">Min</span>
+                        </div>
                     </div>
                 </div>
-                <button onclick="addTask()" class="w-full bg-custom text-white py-4 sm:py-5 rounded-[25px] font-black uppercase tracking-widest shadow-xl">Ajouter au planning</button>
+
+                <button onclick="addTask()" class="w-full bg-cyan-500 text-white py-5 rounded-[25px] font-black uppercase tracking-widest shadow-xl shadow-cyan-100 hover:bg-cyan-400 transition">Programmer la mission</button>
             </div>
         </div>
 
-        <div id="alarmBox" class="bg-white p-4 sm:p-6 rounded-[30px] border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm transition-all">
-            <div class="flex items-center gap-4 w-full sm:w-auto">
-                <div class="bg-slate-50 p-3 rounded-2xl" id="alarmIconBox">
-                    <svg id="alarmSvg" class="w-6 h-6 sm:w-8 sm:h-8 fill-slate-400" viewBox="0 0 24 24">
+        <div id="alarmBox" class="glass-card p-6 flex flex-col sm:flex-row items-center justify-between gap-6 transition-all">
+            <div class="flex items-center gap-5 w-full sm:w-auto">
+                <div class="bg-slate-50 p-4 rounded-2xl">
+                    <svg id="alarmSvg" class="w-8 h-8 fill-slate-400" viewBox="0 0 24 24">
                         <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
                     </svg>
                 </div>
                 <div>
-                    <p id="nextTaskInfo" class="font-black text-xs sm:text-sm italic">Prêt pour la journée</p>
-                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Alerte T-5 Min</p>
+                    <p id="nextTaskInfo" class="font-black text-sm">Système en attente</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Notification Intelligente T-5</p>
                 </div>
             </div>
-            <button onclick="generateReport()" class="w-full sm:w-auto bg-slate-900 text-white text-[9px] font-black px-6 py-3 rounded-2xl uppercase tracking-widest">Imprimer Rapport</button>
+            <button onclick="generateReport()" class="w-full sm:w-auto bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest">Générer Rapport PDF</button>
         </div>
 
-        <div id="taskList" class="space-y-3 pb-10"></div>
+        <div id="taskList" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20"></div>
+
     </main>
 
     <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('myFocus_v11')) || { phone: null, tasks: [], timeTotal: 0 };
-        let timerId = null;
-        let timeLeft = 1500;
+        let db = JSON.parse(localStorage.getItem('myFocus_v12')) || { phone: null, tasks: [], timeTotal: 0 };
+        let timerId = null, timeLeft = 1500;
 
         function checkTheme() {
-            const isDark = new Date().getHours() >= 20 || new Date().getHours() < 7;
-            document.body.classList.toggle('dark-theme', isDark);
-            document.getElementById('themeBadge').textContent = isDark ? "MODE NUIT" : "MODE JOUR";
+            const isNight = new Date().getHours() >= 20 || new Date().getHours() < 7;
+            document.body.classList.toggle('dark-theme', isNight);
         }
 
         function startApp() {
             const p = document.getElementById('phoneInput').value;
-            if(p.length < 8) return alert("Numéro invalide");
+            if(p.length < 8) return alert("Identifiant requis");
             db.phone = p; save(); init();
         }
 
         function init() {
             if(!db.phone) return;
             document.getElementById('authOverlay').style.display = 'none';
-            document.getElementById('userInfos').textContent = "ID: " + db.phone;
+            document.getElementById('userInfos').textContent = "ID-SESSION: " + db.phone;
             checkTheme(); render();
-            if(Notification.permission !== 'granted') Notification.requestPermission();
         }
 
-        // VOCAL
+        // VOIX ROBUSTE
         function startVoice() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Speech) return alert("Utilisez Chrome ou Edge pour le vocal");
+            if(!Speech) return alert("Votre navigateur ne supporte pas le vocal (Utilisez Chrome)");
             const rec = new Speech();
             rec.lang = 'fr-FR';
             rec.onstart = () => document.getElementById('micSvg').classList.add('mic-active');
@@ -180,117 +186,104 @@
             rec.start();
         }
 
-        function addTask() {
-            const text = document.getElementById('taskInput').value;
-            const prio = parseInt(document.getElementById('taskPrio').value);
-            const dur = parseInt(document.getElementById('taskDur').value);
-            if(!text || dur < 30) return alert("Nom requis et 30min min.");
-            db.tasks.push({ id: Date.now(), text, prio, dur, done: false, start: calculateStart() });
-            db.tasks.sort((a, b) => a.prio - b.prio);
-            save();
-            document.getElementById('taskInput').value = '';
-        }
-
-        function calculateStart() {
-            let t = Date.now();
-            db.tasks.forEach(x => { if(!x.done) t += x.dur * 60000; });
-            return t;
-        }
-
-        // POMODORO
+        // POMODORO LOGIC
         function toggleTimer() {
             if(timerId) { clearInterval(timerId); timerId = null; document.getElementById('btnTimer').textContent = "Reprendre"; }
             else {
                 document.getElementById('btnTimer').textContent = "Pause";
                 timerId = setInterval(() => {
-                    timeLeft--; updateTimerUI();
+                    timeLeft--; updateUI();
                     if(timeLeft <= 0) { 
                         clearInterval(timerId); db.timeTotal += 25; 
                         document.getElementById('beep').play();
-                        save(); resetTimer(); alert("Bravo ! Session de 25min terminée."); 
+                        save(); resetTimer(); alert("Focus terminé ! +25min"); 
                     }
                 }, 1000);
             }
         }
 
-        function updateTimerUI() {
+        function updateUI() {
             const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-            const ratio = (timeLeft / 1500) * 100;
-            document.getElementById('sand-top').style.clipPath = `inset(${100 - ratio}% 0 0 0)`;
-            document.getElementById('sand-bottom').style.clipPath = `inset(0 0 ${ratio}% 0)`;
+            const ratio = (timeLeft / 1500);
+            document.getElementById('sand-top').style.transform = `scaleY(${ratio})`;
+            document.getElementById('sand-top').style.transformOrigin = "bottom";
+            document.getElementById('sand-bottom').style.transform = `scaleY(${1-ratio})`;
+            document.getElementById('sand-bottom').style.transformOrigin = "bottom";
         }
 
-        function resetTimer() { clearInterval(timerId); timerId = null; timeLeft = 1500; updateTimerUI(); document.getElementById('btnTimer').textContent = "Démarrer"; }
+        function resetTimer() { clearInterval(timerId); timerId = null; timeLeft = 1500; updateUI(); document.getElementById('btnTimer').textContent = "Start Session"; }
 
-        // RAPPORT IMPRIMABLE
-        function generateReport() {
-            const win = window.open('', '_blank');
-            const finies = db.tasks.filter(t => t.done);
-            win.document.write(`
-                <html><head><title>Rapport Focus</title>
-                <style>body{font-family:sans-serif;padding:30px;} .done{color:green;} .late{color:red;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ddd;padding:12px;text-align:left;}</style>
-                </head><body>
-                <h1>Rapport d'Activité : ${db.phone}</h1>
-                <p>Temps total de focus : <strong>${(db.timeTotal/60).toFixed(1)}h</strong></p>
-                <table><tr><th>Tâche</th><th>Durée</th><th>État</th></tr>
-                ${db.tasks.map(t => `<tr><td>${t.text}</td><td>${t.dur}min</td><td class="${t.done?'done':'late'}">${t.done?'TERMINÉE':'REPORTÉE'}</td></tr>`).join('')}
-                </table>
-                <script>window.onload=function(){window.print();window.close();}<\/script></body></html>
-            `);
-            win.document.close();
+        function addTask() {
+            const text = document.getElementById('taskInput').value;
+            const prio = parseInt(document.getElementById('taskPrio').value);
+            const dur = parseInt(document.getElementById('taskDur').value);
+            if(!text) return;
+            db.tasks.push({ id: Date.now(), text, prio, dur, done: false, start: Date.now() + (db.tasks.length * 1800000) });
+            db.tasks.sort((a,b) => a.prio - b.prio);
+            save(); document.getElementById('taskInput').value = '';
         }
 
         function render() {
             const list = document.getElementById('taskList');
             list.innerHTML = '';
-            let dCount = 0, pCount = 0, lCount = 0;
+            let d=0, p=0, l=0;
 
             db.tasks.forEach(t => {
-                const late = !t.done && t.start < Date.now();
-                if(t.done) dCount++; else if(late) lCount++; else pCount++;
-                const dot = t.prio == 1 ? 'dot-red' : (t.prio == 2 ? 'dot-yellow' : 'dot-green');
+                const isLate = !t.done && t.start < Date.now();
+                t.done ? d++ : (isLate ? l++ : p++);
+                const dot = t.prio==1 ? 'dot-red' : (t.prio==2 ? 'dot-yellow' : 'dot-green');
+                
                 const div = document.createElement('div');
-                div.className = `bg-white p-4 sm:p-6 rounded-[25px] border-l-[6px] shadow-sm flex items-center justify-between ${t.done ? 'opacity-30' : ''} ${t.prio==1?'border-red-500':t.prio==2?'border-amber-400':'border-emerald-400'}`;
+                div.className = `glass-card p-6 flex items-center justify-between border-l-8 ${t.prio==1?'border-red-500':t.prio==2?'border-amber-400':'border-emerald-400'} ${t.done?'opacity-40 grayscale':''}`;
                 div.innerHTML = `
-                    <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="flex items-center gap-4">
                         <span class="dot ${dot}"></span>
                         <div>
-                            <p class="font-black text-xs sm:text-base">${t.text}</p>
-                            <p class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-tighter">${t.dur} MIN • DÉBUT : ${new Date(t.start).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
+                            <p class="font-black text-sm">${t.text}</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase">${t.dur}min • Prévu: ${new Date(t.start).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
                         </div>
                     </div>
-                    <button onclick="toggle(${t.id})" class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-slate-50 flex items-center justify-center font-bold text-slate-300 text-lg sm:text-xl">${t.done ? '✓' : '○'}</button>
+                    <button onclick="toggleTask(${t.id})" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center font-bold text-cyan-500">${t.done ? '✓' : ''}</button>
                 `;
                 list.appendChild(div);
             });
-            document.getElementById('statTime').textContent = (db.timeTotal / 60).toFixed(1) + "h";
-            document.getElementById('statDone').textContent = dCount;
-            document.getElementById('statPending').textContent = pCount;
-            document.getElementById('statLate').textContent = lCount;
+            document.getElementById('statTime').textContent = (db.timeTotal/60).toFixed(1) + "h";
+            document.getElementById('statDone').textContent = d;
+            document.getElementById('statPending').textContent = p;
+            document.getElementById('statLate').textContent = l;
             updateAlarms();
         }
 
         function updateAlarms() {
             const next = db.tasks.find(t => !t.done);
             if(!next) return;
-            const diff = (next.start - (5 * 60000)) - Date.now();
+            const diff = next.start - Date.now();
             const box = document.getElementById('alarmBox');
-            if(diff < 0 && diff > -300000) {
+            if(diff > 0 && diff < 300000) {
                 box.classList.add('alarm-blink');
-                document.getElementById('nextTaskInfo').textContent = "URGENT : " + next.text;
-                if(Math.abs(diff) < 2000) { document.getElementById('beep').play(); new Notification("Focus !", {body: next.text}); }
+                document.getElementById('alarmSvg').style.fill = "#ef4444";
+                document.getElementById('nextTaskInfo').textContent = "T-5min : " + next.text;
             } else {
                 box.classList.remove('alarm-blink');
-                document.getElementById('nextTaskInfo').textContent = "Prochain : " + next.text;
+                document.getElementById('alarmSvg').style.fill = "#94a3b8";
+                document.getElementById('nextTaskInfo').textContent = "Suivant : " + next.text;
             }
         }
 
-        function toggle(id) { const t = db.tasks.find(x => x.id === id); t.done = !t.done; save(); }
-        function save() { localStorage.setItem('myFocus_v11', JSON.stringify(db)); render(); }
+        function toggleTask(id) { const t = db.tasks.find(x => x.id === id); t.done = !t.done; save(); }
+        function save() { localStorage.setItem('myFocus_v12', JSON.stringify(db)); render(); }
         
-        setInterval(updateAlarms, 1000);
-        setInterval(checkTheme, 60000);
+        function generateReport() {
+            const win = window.open('', '_blank');
+            win.document.write(`<html><head><style>body{font-family:sans-serif;padding:40px} table{width:100%;border-collapse:collapse} th,td{border:1px solid #ddd;padding:12px;text-align:left} th{background:#00f2fe;color:white}</style></head>
+            <body><h1>Rapport MyFocus - ${db.phone}</h1><p>Focus Total: ${(db.timeTotal/60).toFixed(1)}h</p>
+            <table><tr><th>Mission</th><th>Durée</th><th>Status</th></tr>
+            ${db.tasks.map(t=>`<tr><td>${t.text}</td><td>${t.dur}min</td><td>${t.done?'Validé':'Non-fait'}</td></tr>`).join('')}
+            </table><script>window.print();window.close();<\/script></body></html>`);
+        }
+
+        setInterval(render, 30000);
         init();
     </script>
 </body>
